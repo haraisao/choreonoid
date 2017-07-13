@@ -34,7 +34,11 @@ public:
     void setExecutionDelay(double t);
 
     virtual bool execute();
+#if _MSC_VER == 1900
+	virtual bool executeAsSimulationScript() { return true; };
+#else
     virtual bool executeAsSimulationScript() = 0;
+#endif
 
 protected:
     virtual ~SimulationScriptItem();

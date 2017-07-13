@@ -14,10 +14,14 @@ namespace cnoid {
 class CNOID_EXPORT AbstractTextItem : public Item
 {
 public:
-    AbstractTextItem();
-    AbstractTextItem(const AbstractTextItem& org);
+	AbstractTextItem();
+	AbstractTextItem(const AbstractTextItem& org);
 
-    virtual const std::string& textFilename() const = 0;
+#if _MSC_VER == 1900
+	virtual const std::string& textFilename() {	return "";	};
+#else
+	virtual const std::string& textFilename() const = 0;
+#endif
 
 protected:
     virtual ~AbstractTextItem();

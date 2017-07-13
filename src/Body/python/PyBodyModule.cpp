@@ -18,6 +18,9 @@ using namespace cnoid;
 // for MSVC++2015 Update3
 CNOID_PYTHON_DEFINE_GET_POINTER(Link)
 CNOID_PYTHON_DEFINE_GET_POINTER(Body)
+CNOID_PYTHON_DEFINE_GET_POINTER(BodyMotion)
+CNOID_PYTHON_DEFINE_GET_POINTER(JointPath)
+CNOID_PYTHON_DEFINE_GET_POINTER(Deveice)
 
 namespace
 {
@@ -364,10 +367,8 @@ BOOST_PYTHON_MODULE(Body)
         ;
     }
 
-#ifdef _MSC_VER
-    register_ptr_to_python<BodyPtr>();
-    register_ptr_to_python<LinkPtr>();
-#endif
+	REGISTER_PTR_TO_PYTHON(BodyPtr)
+	REGISTER_PTR_TO_PYTHON(LinkPtr)
 
 }
 

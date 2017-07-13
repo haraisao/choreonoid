@@ -12,6 +12,9 @@ using namespace boost::python;
 
 // for MSVC++2015 Update3
 CNOID_PYTHON_DEFINE_GET_POINTER(QWidget)
+CNOID_PYTHON_DEFINE_GET_POINTER(QToolButton)
+CNOID_PYTHON_DEFINE_GET_POINTER(QMainWindow)
+CNOID_PYTHON_DEFINE_GET_POINTER(QAbstractButton)
 
 namespace {
 

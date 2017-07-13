@@ -18,15 +18,26 @@ public:
     ScriptItem(const ScriptItem& org);
 
     virtual const std::string& textFilename() const;
+#if _MSC_VER == 1900
+	virtual const std::string& scriptFilename() { return ""; };
+#else
     virtual const std::string& scriptFilename() const = 0;
-
+#endif
     virtual std::string identityName() const;
 
+#if _MSC_VER == 1900
+	virtual void setBackgroundMode(bool on) { return; };
+#else
     virtual void setBackgroundMode(bool on) = 0;
+#endif
     virtual bool isBackgroundMode() const;
     virtual bool isRunning() const;
-        
+      
+#if _MSC_VER == 1900
+	virtual bool execute() { return true };
+#else
     virtual bool execute() = 0;
+#endif
 
     /**
        This function executes the code in the same namespace as that of the script exection.
@@ -43,13 +54,21 @@ public:
     virtual bool waitToFinish(double timeout = 0.0);
         
     virtual std::string resultString() const;
-
-    virtual SignalProxy<void()> sigScriptFinished() = 0;
+#if _MSC_VER == 1900
+	virtual SignalProxy<void()> sigScriptFinished() { return __sigScriptFiniushed__; };
         
-    virtual bool terminate() = 0;
+	virtual bool terminate() { return true; };
+#else
+	virtual SignalProxy<void()> sigScriptFinished() = 0;
+
+	virtual bool terminate() = 0;
+#endif
 
 protected:
     virtual ~ScriptItem();
+#if _MSC_VER == 1900
+	 SignalProxy __sigScriptFinished__;
+#endif
 };
 
 typedef ref_ptr<ScriptItem> ScriptItemPtr;

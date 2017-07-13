@@ -9,6 +9,13 @@
 using namespace boost::python;
 using namespace cnoid;
 
+CNOID_PYTHON_DEFINE_GET_POINTER(SgPosTransform)
+CNOID_PYTHON_DEFINE_GET_POINTER(SgGroup)
+CNOID_PYTHON_DEFINE_GET_POINTER(SgNode)
+CNOID_PYTHON_DEFINE_GET_POINTER(SceneProvider)
+CNOID_PYTHON_DEFINE_GET_POINTER(SgTransform)
+CNOID_PYTHON_DEFINE_GET_POINTER(SgObject)
+
 namespace {
 
 void SgObject_notifyUpdate1(SgObject& self){ self.notifyUpdate(); }

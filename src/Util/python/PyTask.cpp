@@ -17,10 +17,148 @@ using namespace boost::python;
 namespace python = boost::python;
 using namespace cnoid;
 
+#if _MSC_VER == 1900
+namespace cnoid{
+class TaskWrap : public Task, public python::wrapper<Task>
+{
+public:
+	TaskWrap() { };
+
+	TaskWrap(const std::string& name, const std::string& caption) : Task(name, caption) { };
+
+	TaskWrap(const Task& org, bool doDeepCopy = true) : Task(org, doDeepCopy) { };
+
+	virtual void onMenuRequest(TaskMenu& menu) {
+		bool called = false;
+		{
+			PyGILock lock;
+			try {
+				if (python::override onMenuRequest = this->get_override("onMenuRequest")) {
+					called = true;
+					onMenuRequest(boost::ref(menu));
+				}
+			}
+			catch (python::error_already_set const& ex) {
+				cnoid::handlePythonException();
+			}
+		}
+		if (!called) {
+			Task::onMenuRequest(menu);
+		}
+	}
+
+	void default_onMenuRequest(TaskMenu& menu) {
+		return this->Task::onMenuRequest(menu);
+	}
+
+	virtual void onActivated(AbstractTaskSequencer* sequencer) {
+		bool isOverridden = false;
+		{
+			PyGILock lock;
+			try {
+				if (python::override func = this->get_override("onActivated")) {
+					isOverridden = true;
+					func(boost::ref(sequencer));
+				}
+			}
+			catch (python::error_already_set const& ex) {
+				cnoid::handlePythonException();
+			}
+		}
+		if (!isOverridden) {
+			Task::onActivated(sequencer);
+		}
+	}
+
+	void default_onActivated(AbstractTaskSequencer* sequencer) {
+		return this->Task::onActivated(sequencer);
+	}
+
+	virtual void onDeactivated(AbstractTaskSequencer* sequencer) {
+		bool isOverridden = false;
+		{
+			PyGILock lock;
+			try {
+				if (python::override func = this->get_override("onDeactivated")) {
+					isOverridden = true;
+					func(boost::ref(sequencer));
+				}
+			}
+			catch (python::error_already_set const& ex) {
+				cnoid::handlePythonException();
+			}
+		}
+		if (!isOverridden) {
+			Task::onDeactivated(sequencer);
+		}
+	}
+
+	void default_onDeactivated(AbstractTaskSequencer* sequencer) {
+		return this->Task::onDeactivated(sequencer);
+	}
+
+	virtual void storeState(AbstractTaskSequencer* sequencer, Mapping& archive) {
+		bool isOverridden = false;
+		{
+			PyGILock lock;
+			try {
+				if (python::override storeStateFunc = this->get_override("storeState")) {
+					isOverridden = true;
+					MappingPtr a = &archive;
+					storeStateFunc(boost::ref(sequencer), a);
+				}
+			}
+			catch (python::error_already_set const& ex) {
+				cnoid::handlePythonException();
+			}
+		}
+		if (!isOverridden) {
+			Task::storeState(sequencer, archive);
+		}
+	}
+
+	void default_storeState(AbstractTaskSequencer* sequencer, Mapping& archive) {
+		return this->Task::storeState(sequencer, archive);
+	}
+
+	virtual void restoreState(AbstractTaskSequencer* sequencer, const Mapping& archive) {
+		bool isOverridden = false;
+		{
+			PyGILock lock;
+			try {
+				if (python::override restoreState = this->get_override("restoreState")) {
+					isOverridden = true;
+					MappingPtr a = const_cast<Mapping*>(&archive);
+					restoreState(boost::ref(sequencer), a);
+				}
+			}
+			catch (python::error_already_set const& ex) {
+				cnoid::handlePythonException();
+			}
+		}
+		if (!isOverridden) {
+			Task::restoreState(sequencer, archive);
+		}
+	}
+
+	void default_restoreState(AbstractTaskSequencer* sequencer, const Mapping& archive) {
+		return this->Task::restoreState(sequencer, archive);
+	}
+};
+
+}
+#endif
+
 // for MSVC++2015 Update3
 CNOID_PYTHON_DEFINE_GET_POINTER(TaskProc)
 CNOID_PYTHON_DEFINE_GET_POINTER(TaskMenu)
 CNOID_PYTHON_DEFINE_GET_POINTER(AbstractTaskSequencer)
+CNOID_PYTHON_DEFINE_GET_POINTER(TaskPhase)
+CNOID_PYTHON_DEFINE_GET_POINTER(TaskCommand)
+CNOID_PYTHON_DEFINE_GET_POINTER(TaskToggleState)
+CNOID_PYTHON_DEFINE_GET_POINTER(TaskPhaseProxy)
+CNOID_PYTHON_DEFINE_GET_POINTER(TaskWrap)
+
         
 namespace {
 
@@ -313,6 +451,7 @@ void TaskMenu_addMenuSeparator(TaskMenu& self){
     self.addMenuSeparator();
 }
 
+#if _MSC_VER != 1900
 class TaskWrap : public Task, public python::wrapper<Task>
 {
 public :
@@ -434,6 +573,7 @@ public :
         return this->Task::restoreState(sequencer, archive);
     }
 };
+#endif
 
 typedef ref_ptr<TaskWrap> TaskWrapPtr;
 

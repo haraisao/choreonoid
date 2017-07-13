@@ -8,6 +8,8 @@
 using namespace boost::python;
 using namespace cnoid;
 
+CNOID_PYTHON_DEFINE_GET_POINTER(PythonSImScriptItem)
+
 BOOST_PYTHON_MODULE(PythonSimScriptPlugin)
 {
     class_< PythonSimScriptItem, PythonSimScriptItemPtr, bases<SimulationScriptItem> >("PythonSimScriptItem")
