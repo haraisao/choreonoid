@@ -3,6 +3,7 @@
 */
 
 #include <QWidget>
+#include <QAction>
 #include <QMainWindow>
 #include <QToolButton>
 #include <cnoid/PyUtil>
@@ -15,6 +16,7 @@ CNOID_PYTHON_DEFINE_GET_POINTER(QWidget)
 CNOID_PYTHON_DEFINE_GET_POINTER(QToolButton)
 CNOID_PYTHON_DEFINE_GET_POINTER(QMainWindow)
 CNOID_PYTHON_DEFINE_GET_POINTER(QAbstractButton)
+CNOID_PYTHON_DEFINE_GET_POINTER(QAction)
 
 namespace {
 
@@ -114,4 +116,7 @@ BOOST_PYTHON_MODULE(QtGui)
     
     class_<QToolButton, QToolButton*, bases<QAbstractButton>, boost::noncopyable>("QToolButton")
         .def("autoRaise", &QToolButton::autoRaise);
+
+	class_<QAction, QAction*, bases<QObject>, boost::noncopyable>("QAction")
+		;
 }

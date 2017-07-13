@@ -122,6 +122,7 @@ MainWindow::MainWindow(const char* appName, ExtensionManager* ext)
 
     setWindowTitle(appName);
     setFocusPolicy(Qt::WheelFocus);
+	this->ext = ext;
 
     impl = new MainWindowImpl(this, appName, ext);
 }

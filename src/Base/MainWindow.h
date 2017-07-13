@@ -34,6 +34,7 @@ public:
     void restoreLayout(ArchivePtr archive);
     void storeLayout(ArchivePtr archive);
     void setInitialLayout(ArchivePtr archive);
+	ExtensionManager *getExtensionManager() { return ext; };
 
 protected:
     virtual void changeEvent(QEvent* event);
@@ -42,6 +43,7 @@ protected:
  
 private:
     MainWindowImpl* impl;
+	ExtensionManager* ext;
 
     MainWindow(const char* appName, ExtensionManager* ext);
     virtual ~MainWindow();
