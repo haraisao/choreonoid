@@ -13,9 +13,17 @@
 #include "../Action.h"
 #include <QWidget>
 #include <boost/python.hpp>
+#include <cnoid/PyUtil>
 
 using namespace boost::python;
 using namespace cnoid;
+
+CNOID_PYTHON_DEFINE_GET_POINTER(ExtensionManager)
+CNOID_PYTHON_DEFINE_GET_POINTER(Plugin)
+CNOID_PYTHON_DEFINE_GET_POINTER(MenuManager)
+CNOID_PYTHON_DEFINE_GET_POINTER(Action)
+CNOID_PYTHON_DEFINE_GET_POINTER(QAction)
+CNOID_PYTHON_DEFINE_GET_POINTER(Menu)
 
 namespace {
 

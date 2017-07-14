@@ -19,7 +19,7 @@ public:
 
     virtual const std::string& textFilename() const;
 #if _MSC_VER == 1900
-	virtual const std::string& scriptFilename() { return ""; };
+	virtual const std::string& scriptFilename() const { return ""; };
 #else
     virtual const std::string& scriptFilename() const = 0;
 #endif
@@ -34,7 +34,7 @@ public:
     virtual bool isRunning() const;
       
 #if _MSC_VER == 1900
-	virtual bool execute() { return true };
+	virtual bool execute() { return true; };
 #else
     virtual bool execute() = 0;
 #endif
@@ -55,7 +55,7 @@ public:
         
     virtual std::string resultString() const;
 #if _MSC_VER == 1900
-	virtual SignalProxy<void()> sigScriptFinished() { return __sigScriptFiniushed__; };
+	virtual SignalProxy<void()> sigScriptFinished() { return __sigScriptFinished__; };
         
 	virtual bool terminate() { return true; };
 #else
@@ -67,7 +67,7 @@ public:
 protected:
     virtual ~ScriptItem();
 #if _MSC_VER == 1900
-	 SignalProxy __sigScriptFinished__;
+	 SignalProxy<void()> __sigScriptFinished__;
 #endif
 };
 
