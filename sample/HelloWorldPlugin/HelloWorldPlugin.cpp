@@ -22,8 +22,14 @@ public:
     {
         Action* menuItem = menuManager().setPath("/View").addItem("Hello World");
         menuItem->sigTriggered().connect(bind(&HelloWorldPlugin::onHelloWorldTriggered, this));
+		this->setUnloadable(true);
         return true;
     }
+
+	virtual bool finalize()
+	{
+		return menuManager().setPath("/View").removeItem("Hello World");
+	}
 
 private:
     

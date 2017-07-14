@@ -3,7 +3,9 @@
 */
 
 #include <QWidget>
+#include <QMenu>
 #include <QAction>
+#include <QActionGroup>
 #include <QMainWindow>
 #include <QToolButton>
 #include <cnoid/PyUtil>
@@ -118,5 +120,8 @@ BOOST_PYTHON_MODULE(QtGui)
         .def("autoRaise", &QToolButton::autoRaise);
 
 	class_<QAction, QAction*, bases<QObject>, boost::noncopyable>("QAction")
+		;
+
+	class_<QMenu, QMenu*, bases<QWidget>, boost::noncopyable>("QMenu")
 		;
 }

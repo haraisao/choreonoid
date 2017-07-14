@@ -53,6 +53,9 @@ public:
 
     MenuManager& addSeparator();
 
+	QAction* getItem(int index);
+	bool removeItem(const QString& text);
+
 private:
     MenuManager(const MenuManager* org);
     QWidget* topMenu_;

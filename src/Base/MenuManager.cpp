@@ -86,8 +86,8 @@ MenuManager::~MenuManager()
 
 int MenuManager::numItems() const
 {
-    if(topMenu_){
-        return topMenu_->actions().size();
+    if(currentMenu_){
+        return currentMenu_->actions().size();
     }
     return 0;
 }
@@ -267,4 +267,25 @@ MenuManager& MenuManager::addSeparator()
     separator->setSeparator(true);
     addItem(currentMenu_, separator);
     return *this;
+}
+
+QAction* MenuManager::getItem(int index) 
+{
+	QWidget* menu = currentMenu_;
+	if (menu) {
+		QList<QAction*> items = currentMenu_->actions();
+		if (index >= 0 && index < items.size()) {
+			return items[index];
+		}
+	}
+	return NULL;
+}
+
+bool MenuManager::removeItem(const QString& text) {
+	QAction* target = findItem(text);
+	if (target) {
+		currentMenu_->removeAction(target);
+		return true;
+	}
+	return false;
 }
