@@ -10,7 +10,7 @@ if(BUILD_SPRING_MODEL_SAMPLE)
   configure_file(SpringModel.body ${CNOID_SOURCE_SHARE_DIR}/model/misc COPYONLY)
   configure_file(CustomizedSpringModel.body ${CNOID_SOURCE_SHARE_DIR}/model/misc COPYONLY)
 
-  if(NOT BUILD_SIMPLE_CONTROLLER_PLUGIN)
+  if(NOT BUILD_SIMPLE_CONTROLLER_SAMPLES)
     message(WARNING "The spring model sample controller needs SimpleControllerPlugin.")
   else()
     add_cnoid_simple_controller(SpringModelController SpringModelController.cpp)

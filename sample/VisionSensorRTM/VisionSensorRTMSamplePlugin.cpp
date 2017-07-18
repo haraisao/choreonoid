@@ -29,7 +29,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-#include <GL/glew.h>
+//#include <GL/glew.h>
 
 using namespace std;
 using namespace std::placeholders;

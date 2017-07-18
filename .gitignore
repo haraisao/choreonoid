@@ -28,10 +28,9 @@ qrc_*.cxx
 /Doxyfile
 gettext.h
 messages.pot
-
-
-
-
+/share/project
+/share/model
+/share/script
 
 
 include/cnoid/AudioItem
