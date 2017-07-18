@@ -4,7 +4,6 @@
 
 #include "../RTCItem.h"
 #include "../deprecated/BodyRTCItem.h"
-
 #ifdef _WIN32
 #undef HAVE_UNISTD_H
 #if _MSC_VER < 1800
@@ -16,6 +15,9 @@
 
 using namespace boost::python;
 using namespace cnoid;
+
+CNOID_PYTHON_DEFINE_GET_POINTER(BodyRTCItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(RTCItem)
 
 BOOST_PYTHON_MODULE(OpenRTMPlugin)
 {

@@ -34,3 +34,39 @@ messages.pot
 
 
 
+include/cnoid/AudioItem
+include/cnoid/MediaItem
+include/cnoid/MediaUtil
+misc/script/install_win32_deps.rb
+share/model/misc/FogUnderWater.wrl
+share/model/misc/submersible.body
+share/model/misc/TrackedVehicle.body
+share/project/4WheelVehicleJoystick.cnoid
+share/project/ConveyorSample.cnoid
+share/project/PA10Pickup.cnoid
+share/project/SampleCrawler.cnoid
+share/project/SampleCrawlerJoystick.cnoid
+share/project/SampleCrawlerSlope_Joystick.cnoid
+share/project/SimpleVehicle.cnoid
+share/project/SR1Liftup-ContactForceExtraction.cnoid
+share/project/SR1Liftup-SpringDamperContact.cnoid
+share/project/SR1Liftup.cnoid
+share/project/SR1Minimum.cnoid
+share/project/SR1Walk.cnoid
+share/project/SR1Walk2D.cnoid
+share/project/SR1WalkinHouse.cnoid
+share/project/SR1WalkPush.cnoid
+share/project/SubmersibleSample.cnoid
+share/project/TankJoystick.cnoid
+share/project/TankJoystickLight.cnoid
+share/project/TankJoystickVisionSensors.cnoid
+share/project/TrackedVehicle.cnoid
+share/script/AgXsetContactMaterial.py
+share/script/SetupSR1SpringDamperContact.py
+share/script/SR1WalkPush.py
+include/cnoid/corba/CameraImage.idl
+include/cnoid/corba/MessageView.idl
+include/cnoid/corba/Naming.idl
+include/cnoid/corba/PointCloud.idl
+include/cnoid/omniORBpy.h
+include/cnoid/corba/OpenHRP/ClockGenerator.idl
