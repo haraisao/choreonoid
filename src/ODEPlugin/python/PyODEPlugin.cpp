@@ -4,9 +4,12 @@
 
 #include "../ODESimulatorItem.h"
 #include <cnoid/PyBase>
+#include <cnoid/PyUtil>
 
 using namespace boost::python;
 using namespace cnoid;
+
+CNOID_PYTHON_DEFINE_GET_POINTER(ODESimulatorItem)
 
 BOOST_PYTHON_MODULE(ODEPlugin)
 {

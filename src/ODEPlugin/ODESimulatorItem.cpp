@@ -1393,7 +1393,7 @@ void ODESimulatorItemImpl::doPutProperties(PutPropertyFunction& putProperty)
 {
     putProperty(_("Step mode"), stepMode, changeProperty(stepMode));
 
-    putProperty(_("Gravity"), str(gravity), std::bind(toVector3, _1, std::ref(gravity)));
+    putProperty(_("Gravity"), str(gravity), std::bind((bool(*)(const std::string&, Vector3&))toVector3, _1, std::ref(gravity)));
 
     putProperty.decimals(2).min(0.0)
         (_("Friction"), friction, changeProperty(friction));
