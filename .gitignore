@@ -69,3 +69,5 @@ include/cnoid/corba/Naming.idl
 include/cnoid/corba/PointCloud.idl
 include/cnoid/omniORBpy.h
 include/cnoid/corba/OpenHRP/ClockGenerator.idl
+build/
+x64/

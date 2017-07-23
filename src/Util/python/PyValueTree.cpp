@@ -5,6 +5,11 @@
 #include "PyUtil.h"
 #include "../ValueTree.h"
 
+#ifdef __PYTHON3__
+#define PyInt_Check	PyLong_Check
+#define PyString_Check	PyUnicode_Check
+#endif
+
 using namespace std;
 using namespace boost;
 using namespace boost::python;
