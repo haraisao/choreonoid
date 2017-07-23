@@ -29,6 +29,7 @@ BOOST_PYTHON_MODULE(Corba)
     PyObject* pyapi = PyObject_GetAttrString(omnipy, (char*)"API");
 
 #ifdef __PYTHON3__
+	api = (omniORBpyAPI*)PyCapsule_GetPointer(pyapi, "omniORBpyApi");
 #else
     api = (omniORBpyAPI*)PyCObject_AsVoidPtr(pyapi);
 #endif
