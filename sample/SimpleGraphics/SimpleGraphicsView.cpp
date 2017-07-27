@@ -23,7 +23,9 @@ SimpleGraphicsViewImpl::SimpleGraphicsViewImpl(SimpleGraphicsView* self)
 	this->setAcceptDrops(false);
 	this->setBackgroundBrush(QBrush(Qt::gray));
 
-
+	QStatusBar *statusBar = new QStatusBar(self);
+	statusBar->showMessage(tr("Ready"));
+	vbox->addWidget(statusBar);
 }
 
 SimpleGraphicsViewImpl::~SimpleGraphicsViewImpl() {
