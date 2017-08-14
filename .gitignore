@@ -31,11 +31,3 @@ messages.pot
 
 
 
-
-
-
-include/cnoid/
-share/model/
-share/project/
-share/script/
-misc/script/
