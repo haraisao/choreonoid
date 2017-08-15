@@ -7,7 +7,11 @@
 #define CNOID_UTIL_IMAGE_PROVIDER_H
 
 #include <cnoid/Image>
+#ifdef _WIN32
+#include "../Base/exportdecl.h"
+#else
 #include "exportdecl.h"
+#endif
 
 namespace cnoid {
 
