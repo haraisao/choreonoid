@@ -13,10 +13,9 @@ AGXLink::AGXLink(const LinkPtr link, const AGXLinkPtr parent, const Vector3& par
     _orgLink = link;
     _agxParentLink = parent;
     agxBody->addAGXLink(this);
-    _origin = parentOrigin + getOrgLink()->b();
-    _controlMode = ControlMode::VELOCITY;
-    //_controlMode = ControlMode::NONE;
-    if(parent && _controlMode != ControlMode::NONE) agxBody->addControllableLink(this);
+    _origin = parentOrigin + link->b();
+    const Link::ActuationMode& actuationMode = link->actuationMode();
+    if(parent && actuationMode != Link::ActuationMode::NO_ACTUATION) agxBody->addControllableLink(this);
     _selfCollisionGroupName = agxBody->getSelfCollisionGroupName();
     constructAGXLink();
     for(Link* child = link->child(); child; child = child->sibling()){
@@ -40,20 +39,20 @@ void AGXLink::setCollision(const bool& bOn)
 
 void AGXLink::setControlInputToAGX()
 {
-    switch(getJointControlMode()){
-        case ControlMode::TORQUE :{
+    switch(getOrgLink()->actuationMode()){
+        case Link::ActuationMode::JOINT_TORQUE :{
             setTorqueToAGX();
             break;
         }
-        case ControlMode::VELOCITY :{
+        case Link::ActuationMode::JOINT_VELOCITY :{
             setVelocityToAGX();
             break;
         }
-        case ControlMode::POSITION :{
+        case Link::ActuationMode::JOINT_DISPLACEMENT :{
             //setPositionToAGX();
             break;
         }
-        case ControlMode::NONE :
+        case Link::ActuationMode::NO_ACTUATION :
         default :
             break;
     }
@@ -93,10 +92,7 @@ void AGXLink::setLinkStateToCnoid()
             if(joint1DOF){
                 orgLink->q() = joint1DOF->getAngle();
                 orgLink->dq() = joint1DOF->getCurrentSpeed();
-                //if(inputMode==VEL){
-                //    link->u() = joint1DOF->getMotor1D()->getCurrentForce();
-                //    //cout << link->name() << " " << link->u() << endl;
-                //}
+                orgLink->u() = joint1DOF->getMotor1D()->getCurrentForce();
                 break;
             }
             //agx::PrismaticUniversalJoint* pujoint = dynamic_cast<agx::PrismaticUniversalJoint*>(joint);
@@ -108,7 +104,7 @@ void AGXLink::setLinkStateToCnoid()
         }
         default :
             break;
-    }    
+    }
 
 
     // position, rotation
@@ -130,39 +126,14 @@ void AGXLink::setLinkStateToCnoid()
 
 }
 
-void AGXLink::setJointControlMode(const ControlMode& mode)
-{
-    _controlMode = mode;
-}
-
 int AGXLink::getIndex() const
 {
     return getOrgLink()->index();
 }
 
-agx::RigidBodyRef AGXLink::getAGXRigidBody() const
+Vector3 AGXLink::getOrigin() const
 {
-    return _rigid;
-}
-
-agxCollide::GeometryRef AGXLink::getAGXGeometry() const
-{
-    return _geometry;
-}
-
-agx::ConstraintRef AGXLink::getAGXConstraint() const
-{
-    return _constraint;
-}
-
-AGXLink::ControlMode AGXLink::getJointControlMode() const
-{
-    return _controlMode;
-}
-
-std::string AGXLink::getSelfCollisionGroupName() const
-{
-    return _selfCollisionGroupName;
+    return _origin;
 }
 
 LinkPtr AGXLink::getOrgLink() const
@@ -175,9 +146,29 @@ AGXLinkPtr AGXLink::getAGXParentLink() const
     return _agxParentLink;
 }
 
-Vector3 AGXLink::getOrigin() const
+agx::RigidBodyRef AGXLink::getAGXRigidBody() const
 {
-    return _origin;
+    return _rigid;
+}
+
+agxCollide::GeometryRef AGXLink::getAGXGeometry() const
+{
+    return _geometry;
+}
+
+void AGXLink::setAGXConstraint(agx::ConstraintRef const constraint)
+{
+    _constraint = constraint;
+}
+
+agx::ConstraintRef AGXLink::getAGXConstraint() const
+{
+    return _constraint;
+}
+
+std::string AGXLink::getSelfCollisionGroupName() const
+{
+    return _selfCollisionGroupName;
 }
 
 agx::RigidBodyRef AGXLink::createAGXRigidBody()
@@ -283,8 +274,11 @@ void AGXLink::detectPrimitiveShape(MeshExtractor* extractor, AGXTrimeshDesc& td)
                     if(scale.x() == scale.z()){
                         doAddPrimitive = true;
                     }
-                } /*else if(mesh->primitiveType() == SgMesh::CAPSUEL){
-                }*/
+                } else if(mesh->primitiveType() == SgMesh::CAPSULE){
+                    if(scale.x() == scale.z()){
+                        doAddPrimitive = true;
+                    }
+                }
             }
         }
         if(doAddPrimitive){
@@ -379,7 +373,7 @@ agx::ConstraintRef AGXLink::createAGXConstraint()
             desc.frameCenter.set(p(0),p(1),p(2));
             desc.rigidBodyA = getAGXRigidBody();
             desc.rigidBodyB = agxParentLink->getAGXRigidBody();
-            if(getJointControlMode() != ControlMode::NONE) desc.isMotorOn = true;
+            if(orgLink->actuationMode() != Link::ActuationMode::NO_ACTUATION) desc.isMotorOn = true;
             constraint = AGXObjectFactory::createConstraint(desc);
             break;
         }
@@ -391,7 +385,7 @@ agx::ConstraintRef AGXLink::createAGXConstraint()
             desc.framePoint.set(p(0),p(1),p(2));
             desc.rigidBodyA = getAGXRigidBody();
             desc.rigidBodyB = agxParentLink->getAGXRigidBody();
-            if(getJointControlMode() != ControlMode::NONE) desc.isMotorOn = true;
+            if(orgLink->actuationMode() != Link::ActuationMode::NO_ACTUATION) desc.isMotorOn = true;
             constraint = AGXObjectFactory::createConstraint(desc);
             break;
         }
@@ -470,6 +464,7 @@ void AGXLink::setPositionToAGX()
 }
 
 
+
 ////////////////////////////////////////////////////////////
 // AGXBody
 AGXBody::AGXBody(Body& orgBody) : SimulationBody(new Body(orgBody)){}
@@ -498,7 +493,7 @@ void AGXBody::initialize()
     body->calcForwardKinematics(true, true);
     _agxLinks.clear();
     _controllableLinks.clear();
-    _agxExtraConstraints.clear();
+    _agxBodyParts.clear();
     std::stringstream ss;
     ss.str("");
     ss << "SelfCollision" << generateUID() << body->name() << std::flush;
@@ -513,7 +508,8 @@ void AGXBody::createBody()
     // Create AGXLink following child link.
     new AGXLink(body()->rootLink(), nullptr, Vector3::Zero(), this);
     setLinkStateToAGX();
-    setExtraJoints();
+    createContinuousTrack();
+    createExtraJoint();
 }
 
 void AGXBody::createBodyClosedLoop()
@@ -533,46 +529,7 @@ void AGXBody::createBodyClosedLoop()
     }
 
     setLinkStateToAGX();
-    setExtraJoints();
-}
-
-void AGXBody::setExtraJoints()
-{
-    BodyPtr const body = this->body();
-    const int n = body->numExtraJoints();
-    for(int j=0; j < n; ++j){
-        ExtraJoint& extraJoint = body->extraJoint(j);
-
-        AGXLinkPtr agxLinkPair[2];
-        agxLinkPair[0] = getAGXLink(extraJoint.link[0]->index());
-        agxLinkPair[1] = getAGXLink(extraJoint.link[1]->index());
-        if(!agxLinkPair[0] || !agxLinkPair[1]) continue;
-
-        Link* const link = extraJoint.link[0];
-        const Vector3 p = link->attitude() * extraJoint.point[0] + link->p();
-        const Vector3 a = link->attitude() * extraJoint.axis;
-        agx::ConstraintRef constraint = nullptr;
-        switch (extraJoint.type){
-            case ExtraJoint::EJ_PISTON :{
-                AGXHingeDesc hd;
-                hd.frameAxis   = agx::Vec3( a(0), a(1), a(2));
-                hd.frameCenter = agx::Vec3( p(0), p(1), p(2));
-                hd.rigidBodyA = agxLinkPair[0]->getAGXRigidBody();
-                hd.rigidBodyB = agxLinkPair[1]->getAGXRigidBody();
-                constraint = AGXObjectFactory::createConstraint(hd);
-            }
-            case  ExtraJoint::EJ_BALL :{
-                AGXBallJointDesc bd;
-                bd.framePoint = agx::Vec3( p(0), p(1), p(2));
-                bd.rigidBodyA = agxLinkPair[0]->getAGXRigidBody();
-                bd.rigidBodyB = agxLinkPair[1]->getAGXRigidBody(); 
-                constraint = AGXObjectFactory::createConstraint(bd);
-            }
-            default:
-                break;
-        }
-        addAGXExtraConstraint(constraint);
-    }
+    //setExtraJoints();
 }
 
 std::string AGXBody::getSelfCollisionGroupName() const
@@ -597,10 +554,6 @@ void AGXBody::setControlInputToAGX()
     for(int i = 0; i < numControllableLinks(); ++i){
         getControllableLink(i)->setControlInputToAGX();
     }
-    //// Skip the root link
-    //for(int i = 1; i < numAGXLinks(); ++i){
-    //    getAGXLink(i)->setControlInputToAGX();
-    //}
 }
 
 void AGXBody::setLinkStateToAGX()
@@ -615,6 +568,51 @@ void AGXBody::setLinkStateToCnoid()
     for(int i = 0; i < numAGXLinks(); ++i){
         getAGXLink(i)->setLinkStateToCnoid();
     }
+}
+
+bool AGXBody::hasForceSensors() const
+{
+    if(sensorHelper.forceSensors().empty()) return false;
+    return true;
+}
+
+bool AGXBody::hasGyroOrAccelerationSensors() const {
+    return sensorHelper.hasGyroOrAccelerationSensors();
+}
+
+void AGXBody::setSensor(const double& timeStep, const Vector3 &gravity)
+{
+    sensorHelper.initialize(body(), timeStep, gravity);
+    const DeviceList<ForceSensor> &forceSensors = sensorHelper.forceSensors();
+    for (size_t i = 0; i < forceSensors.size(); ++i) {
+        AGXLinkPtr agxLink = getAGXLink(forceSensors[i]->link()->index());
+        agxLink->getAGXConstraint()->setEnableComputeForces(true);
+    }
+}
+
+void AGXBody::updateForceSensors()
+{
+    const DeviceList<ForceSensor>& forceSensors = sensorHelper.forceSensors();
+    for(size_t i=0; i < forceSensors.size(); ++i) {
+        ForceSensor *sensor = forceSensors[i];
+        AGXLinkPtr agxLink = getAGXLink(sensor->link()->index());
+        if (agxLink && agxLink->getAGXParentLink() && agxLink->getAGXConstraint()) {
+            agx::Vec3 force, torque;
+            agxLink->getAGXConstraint()->getLastForce(agxLink->getAGXParentLink()->getAGXRigidBody(), force, torque, false);
+            Vector3 f(force[0], force[1], force[2]);
+            Vector3 tau(torque[0], torque[1], torque[2]);
+            const Matrix3 R = sensor->link()->R() * sensor->R_local();
+            const Vector3 p = sensor->link()->R() * sensor->p_local();
+            sensor->f() = R.transpose() * f;
+            sensor->tau() = R.transpose() * (tau - p.cross(f));
+            sensor->notifyStateChange();
+        }
+    }
+}
+
+void AGXBody::updateGyroAndAccelerationSensors()
+{
+    sensorHelper.updateGyroAndAccelerationSensors();
 }
 
 int AGXBody::numAGXLinks() const
@@ -657,26 +655,217 @@ agx::ConstraintRef AGXBody::getAGXConstraint(const int& index) const
     return getAGXLink(index)->getAGXConstraint();
 }
 
-int AGXBody::numAGXExtraConstraints() const
+int AGXBody::numAGXBodyParts() const
 {
-    return _agxExtraConstraints.size();
+    return _agxBodyParts.size();
 }
 
-agx::ConstraintRef AGXBody::getAGXExtraConstraint(const int& index) const
+void AGXBody::addAGXBodyPart(AGXBodyPartPtr const bp)
 {
-    return _agxExtraConstraints[index];
+    _agxBodyParts.push_back(bp);
 }
 
-void AGXBody::addAGXExtraConstraint(agx::ConstraintRef constraint)
+AGXBodyPartPtr AGXBody::getAGXBodyPart(const int & index) const
 {
-    _agxExtraConstraints.push_back(constraint);
+    return _agxBodyParts[index];
 }
 
-unsigned int AGXBody::generateUID()
+
+bool AGXBody::findAGXLinksFromInfo(const std::string& key, const bool& defaultValue, AGXLinkPtrs& agxLinks) const
 {
-    static unsigned int i = 0;
-    i++;
-    return i;
+    agxLinks.clear();
+    for(int i = 0; i < numAGXLinks(); ++i){
+        AGXLinkPtr agxLink =  getAGXLink(i);
+        if(agxLink->getOrgLink()->info(key, defaultValue)) agxLinks.push_back(agxLink);
+    }
+    if(agxLinks.size() > 0) return true;
+    return false;
 }
 
+void AGXBody::createExtraJoint()
+{
+    if(this->body()->numExtraJoints() > 0) 
+        addAGXBodyPart(new AGXExtraJoint(this));
 }
+
+void AGXBody::createContinuousTrack()
+{
+    AGXLinkPtrs agxLinks;
+    if(!findAGXLinksFromInfo("isContinuousTrack", false, agxLinks)) return;
+    for(int i = 0; i < agxLinks.size(); ++i){
+        addAGXBodyPart(new AGXContinousTrack(agxLinks[i], this));
+    }
+}
+
+////////////////////////////////////////////////////////////
+// AGXBodyPart
+AGXBodyPart::AGXBodyPart()
+{
+    _hasSelfCollisionGroupName = false;
+    _constraints.clear();
+}
+
+bool AGXBodyPart::hasSelfCollisionGroupName() const
+{
+    return _hasSelfCollisionGroupName;
+}
+
+std::string AGXBodyPart::getSelfCollisionGroupName() const 
+{
+    return _selfCollisionGroupName; 
+}
+
+int AGXBodyPart::numAGXConstraints() const 
+{ 
+    return _constraints.size(); 
+}
+
+agx::ConstraintRef AGXBodyPart::getAGXConstraint(const int& index) const 
+{
+    return  _constraints[index]; 
+}
+
+void AGXBodyPart::setSelfCollsionGroupName(const std::string & name)
+{
+    _selfCollisionGroupName = name;
+    _hasSelfCollisionGroupName = true;
+}
+
+void AGXBodyPart::addAGXConstraint(agx::ConstraintRef const constraint)
+{
+    _constraints.push_back(constraint);
+}
+
+////////////////////////////////////////////////////////////
+// AGXExtraJoint
+AGXExtraJoint::AGXExtraJoint(AGXBodyPtr agxBody)
+{
+    createJoints(agxBody);
+}
+
+void AGXExtraJoint::createJoints(AGXBodyPtr agxBody)
+{
+    BodyPtr const body = agxBody->body();
+    const int n = body->numExtraJoints();
+    for(int j=0; j < n; ++j){
+        ExtraJoint& extraJoint = body->extraJoint(j);
+
+        AGXLinkPtr agxLinkPair[2];
+        agxLinkPair[0] = agxBody->getAGXLink(extraJoint.link[0]->index());
+        agxLinkPair[1] = agxBody->getAGXLink(extraJoint.link[1]->index());
+        if(!agxLinkPair[0] || !agxLinkPair[1]) continue;
+
+        Link* const link = extraJoint.link[0];
+        const Vector3 p = link->attitude() * extraJoint.point[0] + link->p();
+        const Vector3 a = link->attitude() * extraJoint.axis;
+        agx::ConstraintRef constraint = nullptr;
+        switch (extraJoint.type){
+            case ExtraJoint::EJ_PISTON :{
+                AGXHingeDesc hd;
+                hd.frameAxis   = agx::Vec3( a(0), a(1), a(2));
+                hd.frameCenter = agx::Vec3( p(0), p(1), p(2));
+                hd.rigidBodyA = agxLinkPair[0]->getAGXRigidBody();
+                hd.rigidBodyB = agxLinkPair[1]->getAGXRigidBody();
+                constraint = AGXObjectFactory::createConstraint(hd);
+            }
+            case  ExtraJoint::EJ_BALL :{
+                AGXBallJointDesc bd;
+                bd.framePoint = agx::Vec3( p(0), p(1), p(2));
+                bd.rigidBodyA = agxLinkPair[0]->getAGXRigidBody();
+                bd.rigidBodyB = agxLinkPair[1]->getAGXRigidBody(); 
+                constraint = AGXObjectFactory::createConstraint(bd);
+            }
+            default:
+                break;
+        }
+        addAGXConstraint(constraint);
+    }
+}
+
+
+////////////////////////////////////////////////////////////
+// AGXContinousTrack
+AGXContinousTrack::AGXContinousTrack(AGXLinkPtr footLinkStart, AGXBodyPtr body)
+{
+    std::stringstream ss;
+    ss.str("");
+    ss << "SelfCollisionContinousTrack" << generateUID() << body->bodyItem()->name() << std::flush;
+    setSelfCollsionGroupName(ss.str());
+    _feet.clear();
+    _chassisLink = footLinkStart->getAGXParentLink();
+    _feet.push_back(footLinkStart);
+    addFoot(footLinkStart->getOrgLink(), body);
+    createTrackConstraint();
+}
+
+void AGXContinousTrack::addFoot(LinkPtr link, AGXBodyPtr body)
+{
+    for(Link* child = link->child(); child; child = child->sibling()){
+        _feet.push_back(body->getAGXLink(child->index()));
+        addFoot(child, body);
+    }
+}
+
+void AGXContinousTrack::createTrackConstraint()
+{
+        AGXLinkPtr agxFootLinkStart = _feet[0];
+        AGXLinkPtr agxFootLinkEnd = _feet[_feet.size()-1];
+
+        // Connect footLinkStart and footLinkEnd with Hinge
+        // Create Hinge with world coordination
+        LinkPtr link = agxFootLinkStart->getOrgLink();
+        const Vector3& a = link->a();                       // local
+        const Vector3 aw = link->attitude() * a;            // world
+        const Vector3& p = link->p();                       // world
+        AGXHingeDesc hd;
+        hd.frameAxis   = agx::Vec3(aw(0), aw(1), aw(2));
+        hd.frameCenter = agx::Vec3(p(0), p(1), p(2));
+        hd.rigidBodyA = agxFootLinkStart->getAGXRigidBody();
+        hd.rigidBodyB = agxFootLinkEnd->getAGXRigidBody();
+        hd.isMotorOn = false;
+        agx::ConstraintRef constraint = AGXObjectFactory::createConstraint(hd);   // needs addsimulation
+        link->setJointType(Link::ROTATIONAL_JOINT);
+        agxFootLinkStart->setAGXConstraint(constraint);
+        addAGXConstraint(constraint);
+
+        // Create PlaneJoint to prvent the track falling off
+        // Create joint with parent(example:chasis) coordination 
+        const Vector3& b = link->b();
+        const agx::Vec3 a0 = agx::Vec3(a(0), a(1), a(2));   // Rotate axis of track. local
+        const agx::Vec3& b0 = agx::Vec3(b(0), b(1), b(2));  // Vector from parent to footLinkStart
+        const agx::Vec3& p0 = ( a0 * b0 ) * a0;             // Middle position of track(projection vector of b0 to a0). local
+        agx::Vec3 nx = agx::Vec3::Z_AXIS().cross(a0);       // Check a0 is parallel to Z. X-Y consists plane joint.
+        agx::OrthoMatrix3x3 rotation;
+        if(nx.normalize() > 1.0e-6){
+            nx.normal();
+            rotation.setColumn(0, nx);
+            agx::Vec3 ny = a0.cross(nx);
+            ny.normal();
+            rotation.setColumn(1, ny);
+            rotation.setColumn(2, a0);
+        }
+        agx::AffineMatrix4x4 af( rotation, p0 );
+        AGXPlaneJointDesc pd;
+        pd.frameB = AGXObjectFactory::createFrame();
+        pd.frameB->setMatrix(af);
+        pd.rigidBodyB = agxFootLinkStart->getAGXParentLink()->getAGXRigidBody();
+
+        for(int i = 0;  i < _feet.size(); ++i){
+            AGXLinkPtr agxLink = _feet[i];
+            // Add plane joint
+            pd.frameA = AGXObjectFactory::createFrame();
+            pd.rigidBodyA = agxLink->getAGXRigidBody();
+            agx::PlaneJointRef pj = AGXObjectFactory::createConstraintPlaneJoint(pd);
+            addAGXConstraint((agx::ConstraintRef)pj);
+
+            // Enable collision between tracks and the others. Need to contact with wheels.
+            agxLink->getAGXGeometry()->removeGroup(agxLink->getSelfCollisionGroupName());
+            agxLink->getAGXGeometry()->addGroup(getSelfCollisionGroupName());
+        }
+}
+
+
+
+
+}
+
