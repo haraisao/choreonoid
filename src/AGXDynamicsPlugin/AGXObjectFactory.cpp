@@ -29,6 +29,7 @@ agxSDK::SimulationRef AGXObjectFactory::createSimulation(const AGXSimulationDesc
 {
     agxSDK::SimulationRef sim = new agxSDK::Simulation();
     sim->setTimeStep(desc.timeStep);
+    sim->setUniformGravity(desc.gravity);
     return sim;
 }
 
@@ -135,6 +136,9 @@ agx::ConstraintRef AGXObjectFactory::createConstraint(const AGXConstraintDesc& d
         case AGXConstraintType::AGXHINGE :
             constraint = createConstraintHinge(static_cast<const AGXHingeDesc&>(desc));
             break;
+        case AGXConstraintType::AGXPRISMATIC :
+            constraint = createConstraintPrismatic(static_cast<const AGXPrismaticDesc&>(desc));
+            break;
         case AGXConstraintType::AGXLOCKJOINT :
             constraint = createConstraintLockJoint(static_cast<const AGXLockJointDesc&>(desc));
             break;
@@ -145,6 +149,11 @@ agx::ConstraintRef AGXObjectFactory::createConstraint(const AGXConstraintDesc& d
             break;
     }
     return constraint;
+}
+
+agx::FrameRef AGXObjectFactory::createFrame()
+{
+    return new agx::Frame();
 }
 
 agx::Bool AGXObjectFactory::setContactMaterialParam(agx::ContactMaterialRef const cm, const AGXContactMaterialDesc & desc)
@@ -230,6 +239,11 @@ agx::BallJointRef AGXObjectFactory::createConstraintBallJoint(const AGXBallJoint
     agx::BallJointFrame ballJointFrame;
     ballJointFrame.setCenter(desc.framePoint);
     return new agx::BallJoint(ballJointFrame, desc.rigidBodyA, desc.rigidBodyB);
+}
+
+agx::PlaneJointRef AGXObjectFactory::createConstraintPlaneJoint(const AGXPlaneJointDesc & desc)
+{
+    return new agx::PlaneJoint(desc.rigidBodyA, desc.frameA, desc.rigidBodyB, desc.frameB);
 }
 
 agx::LockJointRef AGXObjectFactory::createConstraintLockJoint(const AGXLockJointDesc & desc)

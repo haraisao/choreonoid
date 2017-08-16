@@ -6,10 +6,9 @@
 #ifndef CNOID_UTIL_IMAGE_PROVIDER_H
 #define CNOID_UTIL_IMAGE_PROVIDER_H
 
-#include <cnoid/Image>
-#ifdef _WIN32
-#include "../Base/exportdecl.h"
-#else
+
+#include "Image.h"
+#include "Signal.h"
 #include "exportdecl.h"
 #endif
 
@@ -18,22 +17,20 @@ namespace cnoid {
 class CNOID_EXPORT ImageProvider
 {
 public:
-
-    virtual ~ImageProvider() {};
+    virtual ~ImageProvider();
 
     virtual const Image* getImage() = 0;
 
-    virtual void notifyUpdate(){
-        sigUpdated_();
+    void notifyImageUpdate(){
+        sigImageUpdated_();
     };
 
-    SignalProxy<void()> sigUpdated() {
-        return sigUpdated_;
+    SignalProxy<void()> sigImageUpdated() {
+        return sigImageUpdated_;
     }
 
 private:
-    Signal<void()> sigUpdated_;
-
+    Signal<void()> sigImageUpdated_;
 };
 
 }
