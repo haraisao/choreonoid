@@ -10,7 +10,6 @@
 #include "Image.h"
 #include "Signal.h"
 #include "exportdecl.h"
-#endif
 
 namespace cnoid {
 
