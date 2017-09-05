@@ -220,16 +220,10 @@ bool PythonPlugin::initializeInterpreter()
 	 using the Python variable, and it invalidates the updated PATH value if the value is
 	 set using C functions.
 	*/	
-
 #ifdef _WIN32
-#if BOOST_PYTHON
-    python::object env = python::import("os").attr("environ");
-    env["PATH"] = python::str(executableDirectory() + ";") + env["PATH"];
-#else
-    pybind11::module env = pybind11::module::import("os").attr("environ");
-    env["PATH"] = pybind11::str(executableDirectory() + ";") + env["PATH"];
+	python::object env = python::import("os").attr("environ");
+	env["PATH"] = python::str(executableDirectory() + ";") + env["PATH"];
 #endif
-
     sysModule = python::module::import("sys");
     
     // set the choreonoid default python script path

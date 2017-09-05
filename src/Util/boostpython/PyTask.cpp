@@ -30,14 +30,14 @@ public:
 	virtual void onMenuRequest(TaskMenu& menu) {
 		bool called = false;
 		{
-			PyGILock lock;
+			py::gil_scoped_acquire lock;
 			try {
-				if (python::override onMenuRequest = this->get_override("onMenuRequest")) {
+				if (py::override onMenuRequest = this->get_override("onMenuRequest")) {
 					called = true;
 					onMenuRequest(boost::ref(menu));
 				}
 			}
-			catch (python::error_already_set const& ex) {
+			catch (py::error_already_set const& ex) {
 				cnoid::handlePythonException();
 			}
 		}
@@ -53,14 +53,14 @@ public:
 	virtual void onActivated(AbstractTaskSequencer* sequencer) {
 		bool isOverridden = false;
 		{
-			PyGILock lock;
+			py::gil_scoped_acquire lock;
 			try {
-				if (python::override func = this->get_override("onActivated")) {
+				if (py::override func = this->get_override("onActivated")) {
 					isOverridden = true;
 					func(boost::ref(sequencer));
 				}
 			}
-			catch (python::error_already_set const& ex) {
+			catch (py::error_already_set const& ex) {
 				cnoid::handlePythonException();
 			}
 		}
@@ -76,14 +76,14 @@ public:
 	virtual void onDeactivated(AbstractTaskSequencer* sequencer) {
 		bool isOverridden = false;
 		{
-			PyGILock lock;
+			py::gil_scoped_acquire lock;
 			try {
-				if (python::override func = this->get_override("onDeactivated")) {
+				if (py::override func = this->get_override("onDeactivated")) {
 					isOverridden = true;
 					func(boost::ref(sequencer));
 				}
 			}
-			catch (python::error_already_set const& ex) {
+			catch (py::error_already_set const& ex) {
 				cnoid::handlePythonException();
 			}
 		}
@@ -99,15 +99,15 @@ public:
 	virtual void storeState(AbstractTaskSequencer* sequencer, Mapping& archive) {
 		bool isOverridden = false;
 		{
-			PyGILock lock;
+			py::gil_scoped_acquire lock;
 			try {
-				if (python::override storeStateFunc = this->get_override("storeState")) {
+				if (py::override storeStateFunc = this->get_override("storeState")) {
 					isOverridden = true;
 					MappingPtr a = &archive;
 					storeStateFunc(boost::ref(sequencer), a);
 				}
 			}
-			catch (python::error_already_set const& ex) {
+			catch (py::error_already_set const& ex) {
 				cnoid::handlePythonException();
 			}
 		}
@@ -123,15 +123,15 @@ public:
 	virtual void restoreState(AbstractTaskSequencer* sequencer, const Mapping& archive) {
 		bool isOverridden = false;
 		{
-			PyGILock lock;
+			py::gil_scoped_acquire lock;
 			try {
-				if (python::override restoreState = this->get_override("restoreState")) {
+				if (py::override restoreState = this->get_override("restoreState")) {
 					isOverridden = true;
 					MappingPtr a = const_cast<Mapping*>(&archive);
 					restoreState(boost::ref(sequencer), a);
 				}
 			}
-			catch (python::error_already_set const& ex) {
+			catch (py::error_already_set const& ex) {
 				cnoid::handlePythonException();
 			}
 		}

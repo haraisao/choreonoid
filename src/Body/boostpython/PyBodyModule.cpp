@@ -263,14 +263,7 @@ BOOST_PYTHON_MODULE(Body)
             .def("hasVirtualJointForces", &Body::hasVirtualJointForces)
             .def("setVirtualJointForces", &Body::setVirtualJointForces)
             .def("addCustomizerDirectory", &Body::addCustomizerDirectory).staticmethod("addCustomizerDirectory")
-
-#ifndef _WIN32
-            .def(other<BodyMotion::Frame>() >> self)
-#endif
             .def(py::other<BodyMotion::ConstFrame>() >> py::self)
-
-            .def(py::other<BodyMotion::ConstFrame>() >> py::self)
-
             ;
     }
 
@@ -342,15 +335,8 @@ BOOST_PYTHON_MODULE(Body)
 
         py::class_<BodyMotion::Frame>("Frame", py::no_init)
             .def("frame", &BodyMotion::Frame::frame)
-<<<<<<< HEAD
-            .def(self << other<Body>())
-#ifndef _WIN32
-            .def(other<Body>() >> self)
-#endif
-=======
             .def(py::self << py::other<Body>())
             .def(py::other<Body>() >> py::self)
->>>>>>> refs/remotes/origin/master
             ;
     }
 
