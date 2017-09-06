@@ -37,7 +37,7 @@ public:
 				}
 			}
 			catch (py::error_already_set const& ex) {
-				cnoid::handlePythonException();
+				py::handleException();
 			}
 		}
 		if (!called) {
@@ -60,7 +60,7 @@ public:
 				}
 			}
 			catch (py::error_already_set const& ex) {
-				cnoid::handlePythonException();
+				py::handleException();
 			}
 		}
 		if (!isOverridden) {
@@ -83,7 +83,7 @@ public:
 				}
 			}
 			catch (py::error_already_set const& ex) {
-				cnoid::handlePythonException();
+				py::handleException();
 			}
 		}
 		if (!isOverridden) {
@@ -107,7 +107,7 @@ public:
 				}
 			}
 			catch (py::error_already_set const& ex) {
-				cnoid::handlePythonException();
+				py::handleException();
 			}
 		}
 		if (!isOverridden) {
@@ -131,7 +131,7 @@ public:
 				}
 			}
 			catch (py::error_already_set const& ex) {
-				cnoid::handlePythonException();
+				py::handleException();
 			}
 		}
 		if (!isOverridden) {
@@ -822,7 +822,7 @@ void exportPyTaskTypes()
         .def("onActivated", &Task::onActivated, &TaskWrap::default_onActivated)
         .def("onDeactivated", &Task::onDeactivated, &TaskWrap::default_onDeactivated)
         .def("storeState", &Task::storeState, &TaskWrap::default_storeState)
-        .def("restoreState", &Task::restoreState, &TaskWrap::default_restoreState)
+        .def("restoreState", &Task::restoreState, &TaskWrap::default_f)
         .def("commandLevel", &Task::commandLevel)
         .def("maxCommandLevel", &Task::maxCommandLevel)
         ;
