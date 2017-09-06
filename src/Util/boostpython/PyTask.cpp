@@ -15,7 +15,8 @@ using namespace std;
 using namespace cnoid;
 namespace py =cnoid::python;
 
-#if _MSC_VER == 1900
+#//if _MSC_VER == 1900
+#if 0
 namespace cnoid{
 
 class TaskWrap : public Task, public py::wrapper<Task>
