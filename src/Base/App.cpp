@@ -109,7 +109,6 @@ class AppImpl
     int exec();
     void onMainWindowCloseEvent();
     void onSigOptionsParsed(boost::program_options::variables_map& v);
-    bool processCommandLineOptions();
     void showInformationDialog();
     void onOpenGLVSyncToggled(bool on);
 
@@ -307,11 +306,15 @@ int App::exec()
 
 int AppImpl::exec()
 {
-    processCommandLineOptions();
+    if(!ext->optionManager().parseCommandLine1(argc, argv)){
+        //exit
+    }
 
     if(!mainWindow->isVisible()){
         mainWindow->show();
     }
+
+    ext->optionManager().parseCommandLine2();
 
     int result = 0;
     
@@ -369,16 +372,6 @@ void AppImpl::onSigOptionsParsed(boost::program_options::variables_map& v)
     }
 }
     
-
-bool AppImpl::processCommandLineOptions()
-{
-    if(!ext->optionManager().parseCommandLine(argc, argv)){
-        //put error messages
-    }
-
-    return false;
-}
-
 
 void AppImpl::showInformationDialog()
 {

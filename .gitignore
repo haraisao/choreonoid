@@ -33,3 +33,6 @@ messages.pot
 /share/script
 
 
+share/project/FourWheelCarJoystick.cnoid
+share/project/SampleCrawlerSlope.cnoid
+share/project/ThreeWheeler.cnoid

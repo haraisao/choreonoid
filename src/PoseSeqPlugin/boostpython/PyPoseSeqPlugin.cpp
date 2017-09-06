@@ -5,12 +5,12 @@
 #include "../PoseSeqItem.h"
 #include <cnoid/PyUtil>
 
-using namespace boost::python;
 using namespace cnoid;
+namespace py = boost::python;
 
 CNOID_PYTHON_DEFINE_GET_POINTER(PoseSeqItem)
 
 BOOST_PYTHON_MODULE(PoseSeqPlugin)
 {
-    class_< PoseSeqItem, PoseSeqItemPtr, bases<Item> >("PoseSeqItem");
+    py::class_<PoseSeqItem, PoseSeqItemPtr, py::bases<Item>>("PoseSeqItem");
 }

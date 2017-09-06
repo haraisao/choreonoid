@@ -7,7 +7,6 @@
 #include "../AbstractTaskSequencer.h"
 #include "../ValueTree.h"
 #include "PyUtil.h"
-#include <cnoid/PythonUtil>
 #include <boost/python/raw_function.hpp>
 #include <set>
 #include <map>
@@ -247,7 +246,7 @@ struct PyTaskFunc
                 func(boost::ref(proc));
             }
         } catch(py::error_already_set const& ex) {
-            handlePythonException();
+            py::handleException();
         }
     }
 };
@@ -261,7 +260,7 @@ struct PyMenuItemFunc
         try {
             func();
         } catch(py::error_already_set const& ex) {
-            handlePythonException();
+            py::handleException();
         }
     }
 };
@@ -275,7 +274,7 @@ struct PyCheckMenuItemFunc
         try {
             func(on);
         } catch(py::error_already_set const& ex) {
-            handlePythonException();
+            py::handleException();
         }
     }
 };
@@ -472,7 +471,7 @@ public :
                     onMenuRequest(boost::ref(menu));
                 } 
             } catch(py::error_already_set const& ex) {
-                cnoid::handlePythonException();
+                py::handleException();
             }
         }
         if(!called){
@@ -494,7 +493,7 @@ public :
                     func(boost::ref(sequencer));
                 }
             } catch(py::error_already_set const& ex) {
-                cnoid::handlePythonException();
+                py::handleException();
             }
         }
         if(!isOverridden){
@@ -516,7 +515,7 @@ public :
                     func(boost::ref(sequencer));
                 }
             } catch(py::error_already_set const& ex) {
-                cnoid::handlePythonException();
+                py::handleException();
             }
         }
         if(!isOverridden){
@@ -539,7 +538,7 @@ public :
                     storeStateFunc(boost::ref(sequencer), a);
                 }
             } catch(py::error_already_set const& ex) {
-                cnoid::handlePythonException();
+                py::handleException();
             }
         }
         if(!isOverridden){
@@ -562,7 +561,7 @@ public :
                     restoreState(boost::ref(sequencer), a);
                 }
             } catch(py::error_already_set const& ex) {
-                cnoid::handlePythonException();
+                py::handleException();
             }
         }
         if(!isOverridden){
