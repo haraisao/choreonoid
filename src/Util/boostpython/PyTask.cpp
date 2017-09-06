@@ -819,8 +819,10 @@ void exportPyTaskTypes()
         .def("onDeactivated", &Task::onDeactivated, &TaskWrap::default_onDeactivated)
         .def("storeState", &Task::storeState, &TaskWrap::default_storeState)
 
-#ifdef CNOID_USE_PYBIND11
-        .def("restoreState", &Task::restoreState, &TaskWrap::default_f)
+#ifdef _WIN32
+        .def("restoreState", &Task::restoreState, &TaskWrap::default_restoreState)
+#else
+		.def("restoreState", &Task::restoreState, &TaskWrap::default_f)
 #endif
         .def("commandLevel", &Task::commandLevel)
         .def("maxCommandLevel", &Task::maxCommandLevel)
