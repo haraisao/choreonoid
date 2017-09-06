@@ -376,10 +376,17 @@ python::object getGlobalNamespace()
     return pythonPlugin->globalNamespace;
 }
 
-python::object getSysModule()
+#if _WIN32
+python::module getSysModule()
 {
     return pythonPlugin->sysModule;
 }
+#else
+python::object getSysModule()
+{
+	return pythonPlugin->sysModule;
+}
+#endif
 
 python::object getExitException()
 {

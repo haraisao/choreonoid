@@ -15,8 +15,7 @@ using namespace std;
 using namespace cnoid;
 namespace py =cnoid::python;
 
-#//if _MSC_VER == 1900
-#if 0
+#if _MSC_VER == 1900
 namespace cnoid{
 
 class TaskWrap : public Task, public py::wrapper<Task>
@@ -819,7 +818,10 @@ void exportPyTaskTypes()
         .def("onActivated", &Task::onActivated, &TaskWrap::default_onActivated)
         .def("onDeactivated", &Task::onDeactivated, &TaskWrap::default_onDeactivated)
         .def("storeState", &Task::storeState, &TaskWrap::default_storeState)
+
+#ifdef CNOID_USE_PYBIND11
         .def("restoreState", &Task::restoreState, &TaskWrap::default_f)
+#endif
         .def("commandLevel", &Task::commandLevel)
         .def("maxCommandLevel", &Task::maxCommandLevel)
         ;
