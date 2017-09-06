@@ -2,15 +2,15 @@
    @author Shin'ichiro Nakaoka
 */
 
-#include "PythonPlugin.h"
-#include "PythonScriptItem.h"
 #include "PythonConsoleView.h"
+#include "PythonScriptItem.h"
 #include "PythonExecutor.h"
 #include <cnoid/PyUtil>
 #include <cnoid/Plugin>
 #include <cnoid/AppConfig>
 #include <cnoid/MenuManager>
 #include <cnoid/ViewManager>
+#include <cnoid/ItemManager>
 #include <cnoid/ExecutablePath>
 #include <cnoid/FileUtil>
 #include <cnoid/MessageView>
@@ -39,14 +39,24 @@ list<string> additionalSearchPathList;
 
 class MessageViewOut
 {
+    MessageView* mv;
 public:
+    MessageViewOut() : mv(MessageView::instance()) { }
+    
     void write(std::string const& text) {
         if(redirectionCheck->isChecked()){
-            MessageView* mv = MessageView::instance();
             mv->put(text);
             mv->flush();
         } else {
             cout << text; cout.flush();
+        }
+    }
+
+    void flush(){
+        if(redirectionCheck->isChecked()){
+            mv->flush();
+        } else {
+            cout.flush();
         }
     }
 };
@@ -70,12 +80,17 @@ public:
     
     std::unique_ptr<PythonExecutor> executor_;
     python::module mainModule;
-    python::object mainNamespace;
+    python::object globalNamespace;
     python::object cnoidModule;
     python::module sysModule;
     python::object exitExceptionType;
     python::object messageViewOut;
     python::object messageViewIn;
+    python::module rollbackImporterModule;
+
+#ifdef CNOID_USE_BOOST_PYTHON
+    python::object stringOutBufClass;
+#endif
         
     PythonPlugin();
     virtual bool initialize();
@@ -94,17 +109,13 @@ public:
     }
 };
 
-};
-
-
-namespace {
 
 PythonPlugin* pythonPlugin = 0;
 
 python::object pythonExit()
 {
     PyErr_SetObject(pythonPlugin->exitExceptionType.ptr(), 0);
-
+    
 #ifdef CNOID_USE_PYBIND11
     if(PyErr_Occurred()){
         throw pybind11::error_already_set();
@@ -128,21 +139,21 @@ PythonPlugin::PythonPlugin()
 
 bool PythonPlugin::initialize()
 {
-    if(!initializeInterpreter()){
-        return false;
-    }
-
     pythonConfig = AppConfig::archive()->openMapping("Python");
 
     MenuManager& mm = menuManager();
     mm.setPath("/Options").setPath("Python");
     redirectionCheck = mm.addCheckItem(_("Redirectiton to MessageView"));
     redirectionCheck->setChecked(pythonConfig->get("redirectionToMessageView", true));
-                                  
+
     refreshModulesCheck = mm.addCheckItem(_("Refresh modules in the script directory"));
     refreshModulesCheck->sigToggled().connect(&PythonExecutor::setModuleRefreshEnabled);
     if(pythonConfig->get("refreshModules", false)){
         refreshModulesCheck->setChecked(true);
+    }
+
+    if(!initializeInterpreter()){
+        return false;
     }
 
     PythonScriptItem::initializeClass(this);
@@ -150,7 +161,7 @@ bool PythonPlugin::initialize()
     
     OptionManager& opm = optionManager();
     opm.addOption("python,p", boost::program_options::value< vector<string> >(), "load a python script file");
-    opm.sigOptionsParsed().connect([&](boost::program_options::variables_map& v){ onSigOptionsParsed(v); });
+    opm.sigOptionsParsed(1).connect([&](boost::program_options::variables_map& v){ onSigOptionsParsed(v); });
 
     setProjectArchiver(
         [&](Archive& archive){ return storeProperties(archive); },
@@ -187,13 +198,12 @@ bool PythonPlugin::initializeInterpreter()
     Py_Initialize();
 #endif
 
-    mainModule = python::import("__main__");
-
     /*
       Some python module requires argv and missing argv may cause AttributeError.a
       (Ex. AttributeError: 'module' object has no attribute 'argv')
       To avoid this problem, set dummy argv to python interpreter by PySys_SetArgvEx.
     */
+
 #ifdef CNOID_USE_PYTHON2
     char dummy_str[] = "choreonoid"; // avoid deprecated conversion from string constant
     char* dummy_argv[] = {dummy_str};
@@ -203,12 +213,8 @@ bool PythonPlugin::initializeInterpreter()
 #endif
     PySys_SetArgvEx(1, dummy_argv, 0);
 
-#ifdef CNOID_USE_PYBIND11
-    mainModule = pybind11::module::import("__main__");
-#else
     mainModule = python::module::import("__main__");
-#endif
-    mainNamespace = mainModule.attr("__dict__");
+    globalNamespace = mainModule.attr("__dict__");
 
 	/*
 	 In Windows, the bin directory must be added to the PATH environment variable
@@ -224,6 +230,7 @@ bool PythonPlugin::initializeInterpreter()
 	python::object env = python::import("os").attr("environ");
 	env["PATH"] = python::str(executableDirectory() + ";") + env["PATH"];
 #endif
+
     sysModule = python::module::import("sys");
     
     // set the choreonoid default python script path
@@ -243,7 +250,8 @@ bool PythonPlugin::initializeInterpreter()
 #else
         python::class_<MessageViewOut>("MessageViewOut", python::init<>())
 #endif
-        .def("write", &MessageViewOut::write);
+        .def("write", &MessageViewOut::write)
+        .def("flush", &MessageViewOut::flush);
     
     messageViewOut = messageViewOutClass();
     sysModule.attr("stdout") = messageViewOut;
@@ -260,15 +268,20 @@ bool PythonPlugin::initializeInterpreter()
     messageViewIn = messageViewInClass();
     sysModule.attr("stdin") = messageViewIn;
 
-    // Override exit and quit
-    python::object builtins = mainNamespace["__builtins__"];
-    exitExceptionType = python::module::import("cnoid.PythonPlugin").attr("ExitException");
-
 #ifdef CNOID_USE_PYBIND11
-    pybind11::object exitFunc = pybind11::cpp_function(pythonExit);
+    pybind11::eval<pybind11::eval_single_statement>("class ExitException (Exception): pass\n");
+    exitExceptionType = mainModule.attr("ExitException");
+    pybind11::eval<pybind11::eval_single_statement>("del ExitException\n");
+    pybind11::function exitFunc = pybind11::cpp_function(pythonExit);
 #else
+    python::exec("class ExitException (Exception): pass\n", globalNamespace);
+    exitExceptionType = mainModule.attr("ExitException");
+    python::exec("del ExitException\n", globalNamespace);
     python::object exitFunc = python::make_function(pythonExit);
 #endif
+
+    // Override exit and quit
+    python::object builtins = globalNamespace["__builtins__"];
     builtins.attr("exit") = exitFunc;
     builtins.attr("quit") = exitFunc;
     sysModule.attr("exit") = exitFunc;
@@ -340,9 +353,10 @@ bool PythonPlugin::finalize()
     pythonConfig->write("redirectionToMessageView", redirectionCheck->isChecked());
     pythonConfig->write("refreshModules", refreshModulesCheck->isChecked());
 
-    // PythonConsoleView must be deleted before finalizing the Python interpreter in
-    // the destructor of PythonPlugin because PythonConsoleView has its own python objects
+    // Views and items defined in this plugin must be deleted before finalizing the Python interpreter
+    // because the views and items have their own python objects
     viewManager().deleteView(PythonConsoleView::instance());
+    itemManager().detachAllManagedTypeItemsFromRoot();
     
     return true;
 }
@@ -350,33 +364,56 @@ bool PythonPlugin::finalize()
 
 CNOID_IMPLEMENT_PLUGIN_ENTRY(PythonPlugin);
 
+namespace cnoid {
 
-python::object cnoid::pythonMainModule()
+python::module getMainModule()
 {
     return pythonPlugin->mainModule;
 }
 
-
-python::object cnoid::pythonMainNamespace()
+python::object getGlobalNamespace()
 {
-    return pythonPlugin->mainNamespace;
+    return pythonPlugin->globalNamespace;
 }
 
-
-python::object cnoid::pythonSysModule()
+python::object getSysModule()
 {
     return pythonPlugin->sysModule;
 }
 
-
-bool cnoid::execPythonCode(const std::string& code)
+python::object getExitException()
 {
-    PythonExecutor& executor = pythonPlugin->executor();
-    bool result = executor.execCode(code);
-    if(executor.hasException()){
-        python::gil_scoped_acquire lock;
-        MessageView::instance()->putln(executor.exceptionText());
-        result = false;
-    }
-    return result;
+    return pythonPlugin->exitExceptionType;
 }
+
+python::module getRollbackImporterModule()
+{
+    if(!pythonPlugin->rollbackImporterModule){
+        pythonPlugin->rollbackImporterModule = python::module::import("cnoid.rbimporter");
+    }
+    return pythonPlugin->rollbackImporterModule;
+}
+
+#ifdef CNOID_USE_BOOST_PYTHON
+
+python::object getStringOutBufClass()
+{
+    struct StringOutBuf
+    {
+        string buf;
+        void write(string const& text){ buf += text; }
+        const string& text() const { return buf; }
+    };
+    
+    if(!pythonPlugin->stringOutBufClass){
+        pythonPlugin->stringOutBufClass =
+            python::class_<StringOutBuf>("StringOutBuf", python::init<>())
+            .def("write", &StringOutBuf::write)
+            .def("text", &StringOutBuf::text, python::return_value_policy<python::copy_const_reference>());
+    }
+    return pythonPlugin->stringOutBufClass;
+};
+    
+#endif
+
+} // namespace cnoid
