@@ -6,7 +6,7 @@ name: Tank
 links:
   -
     name: CHASSIS
-    translation: [ 0, 0, 0.1 ]
+    translation: [ 0, 0, 0.085 ]
     jointType: free
     centerOfMass: [ 0, 0, 0 ]
     mass: 8.0
@@ -439,7 +439,6 @@ links:
                 rotation: [ [ 1, 0, 0, 90 ], [ 0, 1, 0, -90 ] ]
               -
                 type: Transform
-                name: LIGHT
                 translation: [ -0.006, 0, 0.045 ]
                 centerofMass: [ 0, 0, 0 ]
                 mass: 1.0
@@ -455,7 +454,7 @@ links:
                     geometry: { type: Cylinder, radius: 0.03, height: 0.07 }
                   -
                     type: SpotLight
-                    name: LIGHT_MAIN
+                    name: Light
                     direction: [ 1, 0, 0 ]
                     beamWidth: 36
                     cutOffAngle: 40
