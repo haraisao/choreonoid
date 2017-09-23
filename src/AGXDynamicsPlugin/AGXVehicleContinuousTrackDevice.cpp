@@ -2,11 +2,57 @@
 #include <cnoid/YAMLBodyLoader>
 #include <cnoid/YAMLReader>
 #include <cnoid/SceneDevice>
+#include <cnoid/SceneDrawables>
+#include <cnoid/MeshGenerator>
 #include "AGXObjectFactory.h"
+#include <cnoid/Link>
 
 using namespace std;
 
 namespace cnoid {
+
+class SceneTrackDevice : public SceneDevice
+{
+    AGXVehicleContinuousTrackDevice* trackDevice;
+
+public:
+    SceneTrackDevice(AGXVehicleContinuousTrackDevice* device)
+        : SceneDevice(device)
+    {
+        trackDevice = device;
+        MeshGenerator meshGenerator;
+        for (int i = 0; i < trackDevice->getNumNodes(); ++i) {
+            auto position = new SgPosTransform;
+            addChild(position, true);
+        }
+        setFunctionOnStateChanged([&](){ updateTrack(); });
+    }
+
+    void updateTrack() {
+        MeshGenerator meshGenerator;
+//                const int numShoes = 1;
+//        for(int i=0; i < numShoes; ++i){
+//            auto position = new SgPosTransform;
+//            auto shape = new SgShape;
+//            //shape->setMesh(meshGenerator.generateBox(Vector3(0.6, 0.09, 0.3)));
+//            shape->setMesh(meshGenerator.generateBox(Vector3(5, 5, 5)));
+//            position->addChild(shape);
+//            addChild(position, true);
+//        }
+
+        if (trackDevice->getTrackStates().size() <= 0) return;
+        const Position &linkTransform_inv = trackDevice->link()->T().inverse();
+        for (int i = 0; i < trackDevice->getTrackStates().size(); ++i) {
+            SgPosTransform* t = static_cast<SgPosTransform*>(child(i));
+            t->setTransform(linkTransform_inv * trackDevice->getTrackStates()[i].transform);
+            if(t->numChildren() > 0) continue;
+            auto shape = new SgShape;
+            shape->setMesh(meshGenerator.generateBox(trackDevice->getTrackStates()[i].boxSize));
+            t->addChild(shape, true);
+        }
+    }
+};
+
 
 bool readAGXVehicleContinuousTrackDevice(YAMLBodyLoader& loader, Mapping& node)
 {
@@ -15,9 +61,15 @@ bool readAGXVehicleContinuousTrackDevice(YAMLBodyLoader& loader, Mapping& node)
     if(!node.read("nodeThickness", desc.nodeThickness)) return false;
     if(!node.read("nodeWidth", desc.nodeWidth)) return false;
     if(!node.read("nodeDistanceTension", desc.nodeDistanceTension)) return false;
+    node.read("hingeCompliance", desc.hingeCompliance);
+    node.read("stabilizingHingeFrictionParameter", desc.stabilizingHingeFrictionParameter);
+    node.read("enableMerge", desc.enableMerge);
+    node.read("numNodesPerMergeSegment", desc.numNodesPerMergeSegment);
+    node.read("lockToReachMergeConditionCompliance", desc.lockToReachMergeConditionCompliance);
+    node.read("contactReductionLevel", desc.contactReductionLevel);
 
     // Get name of wheels from yaml 
-    const auto packToVectorString = [](ValueNodePtr const vnptr, vector<string>& vs) ->bool
+    const auto toVectorString = [](ValueNodePtr const vnptr, vector<string>& vs) ->bool
     {
         if(!vnptr) return false;
         Listing& list = *vnptr->toListing();
@@ -27,36 +79,33 @@ bool readAGXVehicleContinuousTrackDevice(YAMLBodyLoader& loader, Mapping& node)
         return true;
     };
     MappingPtr info = static_cast<Mapping*>(node.clone());
-    packToVectorString(info->extract("sprocketNames"), desc.sprocketNames);
-    packToVectorString(info->extract("idlerNames"), desc.idlerNames);
-    packToVectorString(info->extract("rollerNames"), desc.rollerNames);
-    Listing& u = *info->extract("upAxis")->toListing();
-    if(!u.size() == 3) return false;
-    desc.upAxis = Vector3(u[0].toDouble(), u[1].toDouble(), u[2].toDouble());
-
+    toVectorString(info->extract("sprocketNames"), desc.sprocketNames);
+    toVectorString(info->extract("idlerNames"), desc.idlerNames);
+    toVectorString(info->extract("rollerNames"), desc.rollerNames);
+    ValueNodePtr const upAxis = info->extract("upAxis");
+    if(upAxis){
+        Listing& u = *upAxis->toListing();
+        if(u.size() != 3) return false;
+        desc.upAxis = Vector3(u[0].toDouble(), u[1].toDouble(), u[2].toDouble());
+    }else{
+        return false;
+    }
+    std::cout << desc.sprocketNames.size() << std::endl;
     AGXVehicleContinuousTrackDevicePtr trackDevice = new AGXVehicleContinuousTrackDevice(desc);
+    std::cout << trackDevice->getSprocketNames()->size() << std::endl;
     return loader.readDevice(trackDevice, node);
 }
 
 SceneDevice* createSceneAGXVehicleContinuousTrackDevice(Device* device)
 {
-//    auto sceneSmoke = new SceneSmoke;
-    //auto sceneDevice = new SceneDevice(device, sceneSmoke);
-
-    //sceneDevice->setFunctionOnTimeChanged(
-    //    [sceneSmoke](double time){
-    //        sceneSmoke->setTime(time);
-    //        sceneSmoke->notifyUpdate();
-    //    });
-    //        
-    //return sceneDevice;
-    return nullptr;
+    return new SceneTrackDevice(static_cast<AGXVehicleContinuousTrackDevice*>(device));
 }
-                        
+
+
 struct TypeRegistration
 {
     TypeRegistration() {
-        if(AGXObjectFactory::checkModuleEnalbled("AGX-Vehicle")){
+        if(AGXObjectFactory::checkModuleEnalbled("AGX-Vehicle") || AGXObjectFactory::checkModuleEnalbled("AgX-Vehicle")){
             YAMLBodyLoader::addNodeType("AGXVehicleContinuousTrackDevice", readAGXVehicleContinuousTrackDevice);
             SceneDevice::registerSceneDeviceFactory<AGXVehicleContinuousTrackDevice>(createSceneAGXVehicleContinuousTrackDevice);
             std::cout << "AGX-Vehicle is enabled." << std::endl;
@@ -67,15 +116,8 @@ struct TypeRegistration
 } registration;
 
 AGXVehicleContinuousTrackDevice::AGXVehicleContinuousTrackDevice(const AGXVehicleContinuousTrackDeviceDesc& desc)
+    : AGXVehicleContinuousTrackDeviceDesc(desc)
 {
-    upAxis = desc.upAxis;
-    numberOfNodes = desc.numberOfNodes;
-    nodeThickness = desc.nodeThickness;
-    nodeWidth = desc.nodeWidth;
-    nodeDistanceTension = desc.nodeDistanceTension;
-    sprocketNames = desc.sprocketNames;
-    idlerNames = desc.idlerNames;
-    rollerNames = desc.rollerNames;
 }
 
 AGXVehicleContinuousTrackDevice::AGXVehicleContinuousTrackDevice(const AGXVehicleContinuousTrackDevice& org, bool copyStateOnly)
@@ -94,14 +136,11 @@ const char* AGXVehicleContinuousTrackDevice::typeName()
 void AGXVehicleContinuousTrackDevice::copyStateFrom(const AGXVehicleContinuousTrackDevice& other)
 {
     on_ = other.on_;
-    upAxis = other.upAxis;
-    numberOfNodes = other.numberOfNodes;
-    nodeThickness = other.nodeThickness;
-    nodeWidth = other.nodeWidth;
-    nodeDistanceTension = other.nodeDistanceTension;
-    sprocketNames = other.sprocketNames;
-    idlerNames = other.idlerNames;
-    rollerNames = other.rollerNames;
+    AGXVehicleContinuousTrackDeviceDesc desc;
+    AGXVehicleContinuousTrackDevice& dev = const_cast<AGXVehicleContinuousTrackDevice&>(other);
+    dev.getDesc(desc);  // Need to get desc. So do const_cast above.
+    setDesc(desc);
+    _trackStates = other._trackStates;
 }
 
 
@@ -159,24 +198,9 @@ Vector3 AGXVehicleContinuousTrackDevice::getUpAxis() const
     return upAxis;
 }
 
-int AGXVehicleContinuousTrackDevice::getNumberOfNodes() const
+int AGXVehicleContinuousTrackDevice::getNumNodes() const
 {
     return numberOfNodes;
-}
-
-double AGXVehicleContinuousTrackDevice::getNodeThickness() const
-{
-    return nodeThickness;
-}
-
-double AGXVehicleContinuousTrackDevice::getNodeWidth() const
-{
-    return nodeWidth;
-}
-
-double AGXVehicleContinuousTrackDevice::getNodeDistanceTension() const
-{
-    return nodeDistanceTension;
 }
 
 int AGXVehicleContinuousTrackDevice::numSprocketNames() const
@@ -208,8 +232,32 @@ int AGXVehicleContinuousTrackDevice::numRollerNames() const
 
 const string* AGXVehicleContinuousTrackDevice::getRollerNames() const
 {
-    if(rollerNames.empty()) return nullptr;
+    if (rollerNames.empty()) return nullptr;
     return &rollerNames.front();
+}
+
+void AGXVehicleContinuousTrackDevice::setDesc(const AGXVehicleContinuousTrackDeviceDesc& desc){
+    static_cast<AGXVehicleContinuousTrackDeviceDesc&>(*this) = desc;
+}
+
+void AGXVehicleContinuousTrackDevice::getDesc(AGXVehicleContinuousTrackDeviceDesc& desc)
+{
+    desc = static_cast<AGXVehicleContinuousTrackDeviceDesc&>(*this);
+}
+
+void AGXVehicleContinuousTrackDevice::reserveTrackStateSize(const unsigned int& num) {
+    _trackStates.reserve(num);
+}
+
+void AGXVehicleContinuousTrackDevice::addTrackState(const Vector3& boxSize, const Position& transform) {
+    TrackState s;
+    s.boxSize = boxSize;
+    s.transform = transform;
+    _trackStates.push_back(s);
+}
+
+TrackStates& AGXVehicleContinuousTrackDevice::getTrackStates() {
+    return _trackStates;
 }
 
 
