@@ -15,41 +15,44 @@ struct AGXVehicleContinuousTrackDeviceDesc{
         nodeThickness = 0.075;
         nodeWidth = 0.6;
         nodeDistanceTension = 5.0E-3;
+        hingeCompliance = 4.0E-10;
+        stabilizingHingeFrictionParameter = 1.5;
+        enableMerge = false;
+        numNodesPerMergeSegment = 4;
+        lockToReachMergeConditionCompliance = 1.0E-8;
+        contactReductionLevel = 3;
         sprocketNames.clear();
         idlerNames.clear();
         rollerNames.clear();
-        //sprocketRadius = 0.45;
-        //sprocketHeight = 0.35;
-        //idlerRadius = 0.40;   
-        //idlerHeight = 0.35;   
-        //rollerRadius = 0.35;  
-        //rollerHeight = 0.35;  
-        //rollerOffset = 1.0 * rollerRadius;
-        //numRollers = 6;
     }
     Vector3 upAxis;
-    int numberOfNodes;        // Total number of nodes in the track.
+    int numberOfNodes;           // Total number of nodes in the track.
     double nodeThickness;        // Thickness of each node in the track.
     double nodeWidth;            // Width of each node in the track.
     double nodeDistanceTension;  // The calculated node length is close to ideal, meaning close to zero tension
                                               // in the tracks if they were simulated without gravity. This distance is an offset
                                               // how much closer each node will be to each other, resulting in a given initial tension.
-                                              //agx::Real sprocketRadius;       // Radius of the sprocket wheel.
-                                              //agx::Real sprocketHeight;       // Height of the sprocket wheel.
+    double hingeCompliance;
+    double stabilizingHingeFrictionParameter;
+    bool enableMerge;
+    int numNodesPerMergeSegment;
+    double lockToReachMergeConditionCompliance;
+    int contactReductionLevel;
     vector<string> sprocketNames;
     vector<string> idlerNames;
     vector<string> rollerNames;
-    //agx::Real idlerRadius;           // Radius of the idler wheel.
-    //agx::Real idlerHeight;           // Height of the idler wheel.
-    //agx::Real rollerRadius;          // Radius of the ground/roller wheel(s).
-    //agx::Real rollerHeight;          // Height of the ground/roller wheel(s).
-    //agx::Real rollerOffset;          // Offset between the rollers.
-    //agx::UInt numRollers;            // Number of rollers/ground wheels.
 };
+
+struct TrackState{
+        Vector3 boxSize;
+        Affine3 transform;
+};
+typedef std::vector<TrackState> TrackStates;
 
 class AGXVehicleContinuousTrackDevice : private AGXVehicleContinuousTrackDeviceDesc, public Device
 {
 public:
+
     AGXVehicleContinuousTrackDevice(const AGXVehicleContinuousTrackDeviceDesc& desc);
     AGXVehicleContinuousTrackDevice(const AGXVehicleContinuousTrackDevice& org, bool copyStateOnly = false);
     virtual const char* typeName() override;
@@ -65,20 +68,22 @@ public:
     bool on() const { return on_; }
     void on(bool on) { on_ = on; }
     Vector3 getUpAxis() const;
-    int getNumberOfNodes() const;
-    double getNodeThickness() const;
-    double getNodeWidth() const;
-    double getNodeDistanceTension() const;
+    int getNumNodes() const;
     int numSprocketNames() const;
     const string* getSprocketNames() const;
     int numIdlerNames() const;
     const string* getIdlerNames() const;
     int numRollerNames() const;
     const string* getRollerNames() const;
-
+    void setDesc(const AGXVehicleContinuousTrackDeviceDesc& desc);
+    void getDesc(AGXVehicleContinuousTrackDeviceDesc& desc);
+    void reserveTrackStateSize(const unsigned int& num );
+    void addTrackState(const Vector3& boxSize, const Position& transform);
+    TrackStates& getTrackStates();
 
 private:
     bool on_;
+    TrackStates _trackStates;
 };
 
 typedef ref_ptr<AGXVehicleContinuousTrackDevice> AGXVehicleContinuousTrackDevicePtr;
