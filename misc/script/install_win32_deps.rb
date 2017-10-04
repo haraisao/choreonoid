@@ -58,7 +58,7 @@ FileUtils.cp_r("C:/Choreonoid-vc14", tmptop)
 bindir = tmptop + "\\bin"
 
 copy_dlls("/bin", bindir, [/-vc80-/, /-d-/])
-copy_dlls("/bin/x86_win32", bindir)
+copy_dlls("C:/local/OpenRTM-aist_x64/1.1.2/omniORB/4.2.1_vc14/bin/x86_win32", bindir)
 copy_dlls("/bin", bindir)
 
 # copy_dlls("/bin", bindir, [/sDIMS/])
