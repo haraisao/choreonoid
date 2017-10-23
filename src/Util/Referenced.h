@@ -11,6 +11,7 @@
 
 #ifdef WIN32
 #include <memory>
+#include <string>
 #endif
 
 namespace cnoid {
