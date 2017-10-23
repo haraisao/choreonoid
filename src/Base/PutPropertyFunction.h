@@ -29,6 +29,7 @@ public:
     const std::vector<std::string>& filters() const { return filters_; }
 };
 
+/*
 <<<<<<< HEAD
 #ifndef _WIN32
 #define DLLSFX string("(*.so)")
@@ -37,6 +38,7 @@ public:
 #endif
 =======
 >>>>>>> master
+*/
 
 class PutPropertyFunction
 {
