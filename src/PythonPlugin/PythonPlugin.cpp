@@ -226,9 +226,19 @@ bool PythonPlugin::initializeInterpreter()
 	 using the Python variable, and it invalidates the updated PATH value if the value is
 	 set using C functions.
 	*/	
+<<<<<<< HEAD
 #ifdef _WIN32
 	python::object env = python::import("os").attr("environ");
 	env["PATH"] = python::str(executableDirectory() + ";") + env["PATH"];
+=======
+#ifdef WIN32
+    python::module env = python::module::import("os").attr("environ");
+#ifdef CNOID_USE_PYBIND11
+    env["PATH"] = python::str(executableDirectory() + ";" + std::string(python::str(env["PATH"])));
+#else
+    env["PATH"] = python::str(executableDirectory() + ";") + env["PATH"];
+>>>>>>> master
+#endif
 #endif
 
     sysModule = python::module::import("sys");
@@ -376,7 +386,10 @@ python::object getGlobalNamespace()
     return pythonPlugin->globalNamespace;
 }
 
+<<<<<<< HEAD
 #if _WIN32
+=======
+>>>>>>> master
 python::module getSysModule()
 {
     return pythonPlugin->sysModule;
