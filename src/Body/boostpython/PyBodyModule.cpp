@@ -360,15 +360,17 @@ BOOST_PYTHON_MODULE(Body)
             ;
     }
 
-<<<<<<< HEAD
+//<<<<<<< HEAD
 	REGISTER_PTR_TO_PYTHON(BodyPtr)
 	REGISTER_PTR_TO_PYTHON(LinkPtr)
-=======
+//=======
+/*
 #ifdef _MSC_VER
     py::register_ptr_to_python<BodyPtr>();
     py::register_ptr_to_python<LinkPtr>();
 #endif
->>>>>>> master
+*/
+//>>>>>>> master
 
 }
 
