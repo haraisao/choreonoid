@@ -153,6 +153,7 @@ bool PythonPlugin::initialize()
     }
 
     if(!initializeInterpreter()){
+		MessageView::instance()->putln(_("Python Interpreter intialize failed. Please set PYTHOHOME variable."));
         return false;
     }
 
@@ -195,7 +196,13 @@ bool PythonPlugin::initializeInterpreter()
 #ifdef CNOID_USE_PYBIND11
     interpreter.reset(new pybind11::scoped_interpreter(false));
 #else
+	//char *python_home = "C:\\Python27";
+	//Py_SetPythonHome(python_home);
+	if (Py_GetPythonHome() == NULL) {
+		return false;
+	}
     Py_Initialize();
+
 #endif
 
     /*
@@ -226,20 +233,13 @@ bool PythonPlugin::initializeInterpreter()
 	 using the Python variable, and it invalidates the updated PATH value if the value is
 	 set using C functions.
 	*/	
-    /*
-<<<<<<< HEAD
-#ifdef _WIN32
-	python::object env = python::import("os").attr("environ");
-	env["PATH"] = python::str(executableDirectory() + ";") + env["PATH"];
-=======
-*/
+
 #ifdef WIN32
     python::module env = python::module::import("os").attr("environ");
 #ifdef CNOID_USE_PYBIND11
     env["PATH"] = python::str(executableDirectory() + ";" + std::string(python::str(env["PATH"])));
 #else
     env["PATH"] = python::str(executableDirectory() + ";") + env["PATH"];
-//>>>>>>> master
 #endif
 #endif
 
