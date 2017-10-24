@@ -196,11 +196,11 @@ bool PythonPlugin::initializeInterpreter()
 #ifdef CNOID_USE_PYBIND11
     interpreter.reset(new pybind11::scoped_interpreter(false));
 #else
-	//char *python_home = "C:\\Python27";
-	//Py_SetPythonHome(python_home);
-	if (Py_GetPythonHome() == NULL) {
-		return false;
-	}
+    //char *python_home = "C:\\Python27";
+    //Py_SetPythonHome(python_home);
+    if (Py_GetPythonHome() == NULL) {
+        return false;
+    }
     Py_Initialize();
 
 #endif
