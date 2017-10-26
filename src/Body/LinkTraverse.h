@@ -35,7 +35,7 @@ public:
     void append(Link* link, bool isDownward = true);
 
     int numLinks() const {
-        return links.size();
+        return (int)links.size();
     }
 
     bool empty() const {

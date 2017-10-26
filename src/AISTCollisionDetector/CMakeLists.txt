@@ -52,6 +52,7 @@ if(MSVC)
   if(MSVC_VERSION GREATER 1600)
     add_definitions(-D_ALLOW_KEYWORD_MACROS)
   endif()
+  add_definitions("/wd4067 /wd4311 /wd4302")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

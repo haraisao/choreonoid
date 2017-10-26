@@ -48,7 +48,7 @@ public:
 
     VectorXd& convertToRadian(VectorXd& q)
     {
-        for(size_t i=0; i < q.size(); ++i){
+        for(size_t i=0; i < (unsigned int)q.size(); ++i){
             q[i] = radian(q[i]);
         }
         return q;

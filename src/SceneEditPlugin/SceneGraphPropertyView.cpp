@@ -253,7 +253,7 @@ void PropertyItem::setData(int role, const QVariant& qvalue)
                 break;
             }
             
-        } catch(const boost::bad_lexical_cast& ex) {
+        } catch(const boost::bad_lexical_cast& ) {
 
         }
     }

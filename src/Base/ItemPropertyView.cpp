@@ -592,9 +592,11 @@ void PropertyItem::setData(int role, const QVariant& qvalue)
             default:
                 break;
             }
-            
+#ifdef _WIN32
+        } catch(const boost::bad_lexical_cast&) {
+#else
         } catch(const boost::bad_lexical_cast& ex) {
-            
+#endif
         }
         
         if(accepted){

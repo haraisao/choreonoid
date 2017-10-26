@@ -71,8 +71,8 @@ public:
             }
         }
 
-        int index = samples.size();
-        int size = y.size();
+        int index = (int)samples.size();
+        int size = (int)y.size();
         samples.push_back(Sample(size));
 
         Sample& s = samples.back();
@@ -178,7 +178,7 @@ private:
         s0.segmentType = CUBIC_SPLINE;
         s0.isEdge = true;
 
-        const int size = s0.y.size();
+        const int size = (const int)s0.y.size();
 
         if(s0.isNaturalEdge){
             s0.a = VectorType::Zero(size);
@@ -259,7 +259,7 @@ private:
         const double h2 = h * h;
         const double h3 = h2 * h;
             
-        const int size = s0.yp.size();
+        const int size = (const int)s0.yp.size();
         const VectorType d0 = s0.isEdge ? s0.yp : VectorType::Zero(size);
         const VectorType d1 = s1.isEdge ? s1.yp : VectorType::Zero(size);
             

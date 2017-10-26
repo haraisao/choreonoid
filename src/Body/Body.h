@@ -13,6 +13,10 @@
 #include "MassMatrix.h"
 #include "exportdecl.h"
 
+#ifdef _WIN32
+#pragma warning(disable:4267)
+#endif
+
 namespace cnoid {
 
 class Body;

@@ -110,7 +110,7 @@ public:
 
     void addParent(SgObject* parent, bool doNotify = false);
     void removeParent(SgObject* parent);
-    int numParents() const { return parents.size(); }
+    int numParents() const { return (int)parents.size(); }
     bool hasParents() const { return !parents.empty(); }
 
 public:
@@ -233,7 +233,7 @@ public:
     bool contains(SgNode* node) const;
 
     bool empty() const { return children.empty(); }
-    int numChildren() const { return children.size(); }
+    int numChildren() const { return (int)children.size(); }
     SgNode* child(int index) { return children[index]; }
     const SgNode* child(int index) const { return children[index]; }
 

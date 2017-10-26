@@ -651,7 +651,7 @@ bool WorldLogFileItemImpl::readTopHeader()
                     currentReadFramePos = readBuf.pos;
                     result = readFrameHeader(readBuf.pos);
                 }
-            } catch(NotEnoughDataException& ex){
+            } catch(NotEnoughDataException& ){
                 bodyNames.clear();
             }
         }
