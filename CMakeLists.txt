@@ -171,7 +171,6 @@ if(MSVC)
   #
   #  for MSVC2017 (Exception Handling Model)
   set(ext_compiler_options "${ext_compiler_options} /EHsc")
-  set(ext_compiler_options "${ext_compiler_options} /Ze")
 
   option(MSVC_ENABLE_GLOBAL_OPTIMIZATION "Global optimization with compiler option /GL and linker option /LTCG" ON)
   if(MSVC_ENABLE_GLOBAL_OPTIMIZATION)
