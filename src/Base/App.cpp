@@ -65,6 +65,10 @@
 using namespace cnoid;
 using namespace std::placeholders;
 
+#ifdef _WIN32
+#pragma warning(disable:4506)
+#endif
+
 namespace {
 
 View* lastFocusView_ = 0;
