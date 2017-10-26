@@ -12,10 +12,14 @@ file(GLOB SRC src/*.c)
 
 include_directories(include win32)
 
+
+
 add_library(yaml STATIC ${SRC})
 
 set_target_properties(yaml PROPERTIES
   COMPILE_DEFINITIONS "HAVE_CONFIG_H;YAML_DECLARE_STATIC;"
   DEBUG_POSTFIX d
   )
-
+if(MSVC)
+    add_definitions("/wd4267 /wd4244")
+endif()

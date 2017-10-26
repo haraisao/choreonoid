@@ -10,6 +10,10 @@
 #include <iosfwd>
 #include "exportdecl.h"
 
+#if _WIN32
+#pragma warning(disable:4251)
+#endif
+
 namespace cnoid {
 
 class BoundingBoxf;

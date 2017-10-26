@@ -532,7 +532,7 @@ void ItemTreeViewImpl::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Minus:
             zoomFontSize(-1);
             break;
-        defaut:
+        default:
             processed = false;
             break;
         }

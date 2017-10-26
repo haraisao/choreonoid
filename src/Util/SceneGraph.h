@@ -14,6 +14,11 @@
 #include <set>
 #include "exportdecl.h"
 
+#if _WIN32
+#pragma warning(disable:4251)
+#endif
+
+
 namespace cnoid {
 
 class SgObject;
@@ -36,7 +41,7 @@ public:
     SgUpdate(int action) : action_(action) { path_.reserve(16); }
     virtual ~SgUpdate();
     int action() const { return action_; }
-    bool isModified() const { return (action_ & MODIFIED); }
+	bool isModified() const { return (action_ & MODIFIED) ? true:false; }
     void setAction(int act) { action_ = act; }
     const Path& path() const { return path_; }
     void push(SgObject* node) { path_.push_back(node); }

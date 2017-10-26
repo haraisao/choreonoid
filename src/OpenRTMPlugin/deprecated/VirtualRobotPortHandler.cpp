@@ -9,6 +9,10 @@
 #include <cnoid/DyBody>
 #include <cnoid/Light>
 
+#ifdef _WIN32
+#pragma warning (disable:4267)
+#endif
+
 using namespace std;
 using namespace RTC;
 using namespace cnoid;

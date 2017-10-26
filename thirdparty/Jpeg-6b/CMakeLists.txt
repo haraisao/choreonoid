@@ -67,7 +67,12 @@ set(headers
 
 add_library(${JPEG_LIBRARY} STATIC ${sources})
 
+
 if(WIN32)
   set_target_properties(${JPEG_LIBRARY} PROPERTIES COMPILE_FLAGS -Ob1)
   set_target_properties(${JPEG_LIBRARY} PROPERTIES DEBUG_POSTFIX d )
 endif() 
+
+if(MSVC)
+  add_definitions("/wd4267")
+endif()

@@ -10,6 +10,10 @@
 #include <vector>
 #include "exportdecl.h"
 
+#ifdef _WIN32
+#pragma warning(disable:4251)
+#endif
+
 namespace cnoid {
 
 class Link;

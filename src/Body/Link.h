@@ -15,6 +15,10 @@
 #endif
 #include "exportdecl.h"
 
+#ifdef _WIN32
+#pragma warning(disable:4251)
+#endif
+
 namespace cnoid {
 
 class Body;

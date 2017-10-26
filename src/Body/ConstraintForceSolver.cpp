@@ -5,7 +5,9 @@
 */
 
 #ifdef __WIN32__
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #endif
 
 #include "DyWorld.h"

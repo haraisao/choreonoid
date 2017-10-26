@@ -9,7 +9,13 @@
 #include <boost/format.hpp>
 
 #ifdef _MSC_VER
+#ifdef INFINITY
+#undef INFINITY
+#endif
 #define INFINITY (DBL_MAX+DBL_MAX)
+#ifdef NAN
+#undef NAN
+#endif
 #define NAN (INFINITY-INFINITY)
 #else
 #include <cmath>

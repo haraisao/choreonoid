@@ -47,7 +47,7 @@ public:
     enum TypeBit { INVALID_NODE = 0, SCALAR = 1, MAPPING = 2, LISTING = 4, SEQUENCE = 4, INSERT_LF = 8, APPEND_LF = 16 };
 #endif
 
-    bool isValid() const { return typeBits; }
+    bool isValid() const { return (typeBits ? true:false); }
     TypeBit LFType() const { return (TypeBit)(typeBits & (INSERT_LF | APPEND_LF)); }
     TypeBit nodeType() const { return (TypeBit)(typeBits & 7); }
 
@@ -75,11 +75,11 @@ public:
     //template<typename T> T to() const { return ""; }
     template<typename T> T to() const;
 
-    bool isMapping() const { return typeBits & MAPPING; }
+    bool isMapping() const { return (typeBits & MAPPING) ? true:false; }
     const Mapping* toMapping() const;
     Mapping* toMapping();
 
-    bool isListing() const { return typeBits & LISTING; }
+    bool isListing() const { return (typeBits & LISTING) ? true:false; }
     const Listing* toListing() const;
     Listing* toListing();
         

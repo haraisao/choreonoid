@@ -12,6 +12,9 @@
 #include "gettext.h"
 
 #ifdef _WIN32
+#ifdef snprintf
+#undef snprintf
+#endif
 #define snprintf _snprintf_s
 #endif
 

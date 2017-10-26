@@ -9,6 +9,10 @@
 #include "Item.h"
 #include "exportdecl.h"
 
+#if _MSC_VER == 1900
+#pragma warning(disable: 4172)
+#endif
+
 namespace cnoid {
 
 class CNOID_EXPORT AbstractTextItem : public Item

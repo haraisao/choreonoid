@@ -77,7 +77,8 @@ option(INSTALL_SDK "Installing SDK files such as header files" ${DEFAULT_INSTALL
 option(INSTALL_SDK_WITH_EXTLIBS "The SDK installation includes the external libraries" OFF)
 
 if(MSVC AND CMAKE_CL_64)
-   add_definitions(-D_WIN64)
+   message(STATUS "64bits Compiler selected.")
+   add_definitions("/D_WIN64")
 endif()
 
 if(MSVC)
@@ -170,6 +171,7 @@ if(MSVC)
   #
   #  for MSVC2017 (Exception Handling Model)
   set(ext_compiler_options "${ext_compiler_options} /EHsc")
+  set(ext_compiler_options "${ext_compiler_options} /Ze")
 
   option(MSVC_ENABLE_GLOBAL_OPTIMIZATION "Global optimization with compiler option /GL and linker option /LTCG" ON)
   if(MSVC_ENABLE_GLOBAL_OPTIMIZATION)

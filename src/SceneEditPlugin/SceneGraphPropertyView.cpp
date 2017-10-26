@@ -254,7 +254,7 @@ void PropertyItem::setData(int role, const QVariant& qvalue)
             }
             
         } catch(const boost::bad_lexical_cast& ex) {
-            
+
         }
     }
 }
@@ -794,7 +794,7 @@ void SceneGraphPropertyView::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Minus:
             impl->zoomFontSize(-1);
             return;
-        defaut:
+        default:
             break;
         }
     }
