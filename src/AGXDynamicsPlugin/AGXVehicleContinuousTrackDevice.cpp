@@ -44,7 +44,7 @@ public:
 
     bool createTrackShapes(){
         MeshGenerator meshGenerator;
-        for (int i = 0; i < m_trackDevice->getTrackStates().size(); ++i) {
+        for(size_t i = 0; i < m_trackDevice->getTrackStates().size(); ++i) {
             m_sgTracks[i]->clearChildren();
             auto shape = new SgShape;
             shape->setMesh(meshGenerator.generateBox(m_trackDevice->getTrackStates()[i].boxSize));
@@ -55,7 +55,7 @@ public:
 
     void updateTrackPosition() {
         const Position &linkPos_inv = m_trackDevice->link()->T().inverse();
-        for (int i = 0; i < m_trackDevice->getTrackStates().size(); ++i) {
+        for(size_t i = 0; i < m_trackDevice->getTrackStates().size(); ++i) {
             m_sgTracks[i]->setTransform(linkPos_inv * m_trackDevice->getTrackStates()[i].position);
         }
     }
@@ -82,6 +82,7 @@ bool readAGXVehicleContinuousTrackDevice(YAMLBodyLoader& loader, Mapping& node)
     NODE_READ(lockToReachMergeConditionCompliance);
     NODE_READ(lockToReachMergeConditionDamping);
     NODE_READ(maxAngleMergeCondition);
+    node.read("material", desc.materialName);
 
     // Get name of wheels from yaml
     const auto toVectorString = [](ValueNodePtr const vnptr, vector<string>& vs) ->bool

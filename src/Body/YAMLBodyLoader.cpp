@@ -134,7 +134,7 @@ public:
     typedef unordered_map<string, NodeFunctionInfo> NodeFunctionMap;
     
     NodeFunctionMap nodeFunctions;
-    int numCustomNodeFunctions;
+    size_t numCustomNodeFunctions;
     
     Body* body;
     Link* rootLink;
@@ -262,10 +262,11 @@ public:
     ostream& os() { return *os_; }
 
     vector<bool> validJointIdSet;
-    int numValidJointIds;
+    size_t numValidJointIds;
 
+    unique_ptr<YAMLBodyLoader> subLoader;
     map<string, BodyPtr> subBodyMap;
-    bool doExpandLinkOffsetRotations;
+    bool isSubLoader;
 
     YAMLBodyLoaderImpl(YAMLBodyLoader* self);
     ~YAMLBodyLoaderImpl();
@@ -279,7 +280,9 @@ public:
     LinkPtr readLinkContents(Mapping* linkNode);
     void setJointId(Link* link, int id);
     void readJointContents(Link* link, Mapping* node);
-    boost::optional<Vector3> readAxis(Mapping* node, const char* key);
+    bool extractAxis(Mapping* node, const char* key, Vector3& out_axis);
+    bool readAxis(Mapping* node, const char* key, Vector3& out_axis);
+    void readAxis(ValueNode* node, Vector3& out_axis);
     void setJointParameters(Link* link, string jointType, ValueNode* node);
     void setMassParameters(Link* link);
 
@@ -469,9 +472,8 @@ YAMLBodyLoaderImpl::YAMLBodyLoaderImpl(YAMLBodyLoader* self)
     numCustomNodeFunctions = 0;
 
     body = 0;
-    subBodyMap.clear();
     os_ = &nullout();
-    doExpandLinkOffsetRotations = true;
+    isSubLoader = false;
 }
 
 
@@ -549,6 +551,7 @@ bool YAMLBodyLoaderImpl::clear()
     sceneReader.clear();
     validJointIdSet.clear();
     numValidJointIds = 0;
+    subBodyMap.clear();
     return true;
 }    
 
@@ -567,11 +570,9 @@ bool YAMLBodyLoaderImpl::load(Body* body, const std::string& filename)
 
     bool result = false;
 
-    MappingPtr data;
-    
     try {
         YAMLReader reader;
-        data = reader.loadDocument(filename)->toMapping();
+        MappingPtr data = reader.loadDocument(filename)->toMapping();
         if(data){
             result = readTopNode(body, data);
             if(result){
@@ -638,6 +639,10 @@ bool YAMLBodyLoaderImpl::readBody(Mapping* topNode)
     double version = 1.0;
     
     auto formatNode = topNode->extract("format");
+    if(!formatNode){
+        topNode->throwException(
+            _("Choreonoid body model needs format specification"));
+    }
     if(formatNode->isValid()){
         if(formatNode->toString() != "ChoreonoidBody"){
             formatNode->throwException(
@@ -726,15 +731,17 @@ bool YAMLBodyLoaderImpl::readBody(Mapping* topNode)
 
     body->setRootLink(rootLink);
 
-    if(doExpandLinkOffsetRotations){
+    if(!isSubLoader){
         body->expandLinkOffsetRotations();
     }
 
-    // Warn empty joint ids
-    if(numValidJointIds < validJointIdSet.size()){
-        for(size_t i=0; i < validJointIdSet.size(); ++i){
-            if(!validJointIdSet[i]){
-                os() << str(format("Warning: Joint ID %1% is not specified.") % i) << endl;
+    if(!isSubLoader){
+        // Warn empty joint ids
+        if(numValidJointIds < validJointIdSet.size()){
+            for(size_t i=0; i < validJointIdSet.size(); ++i){
+                if(!validJointIdSet[i]){
+                    os() << str(format("Warning: Joint ID %1% is not specified.") % i) << endl;
+                }
             }
         }
     }
@@ -810,6 +817,10 @@ LinkPtr YAMLBodyLoaderImpl::readLinkContents(Mapping* node)
     }
 
     readJointContents(link, node);
+
+    if(node->extract("material", symbol)){
+        link->setMaterial(symbol);
+    }
     
     currentLink = link;
     rigidBodies.clear();
@@ -872,7 +883,7 @@ void YAMLBodyLoaderImpl::setJointId(Link* link, int id)
 {
     link->setJointId(id);
     if(id >= 0){
-        if(id >= validJointIdSet.size()){
+        if(id >= static_cast<int>(validJointIdSet.size())){
             validJointIdSet.resize(id + 1);
         }
         if(!validJointIdSet[id]){
@@ -892,33 +903,47 @@ void YAMLBodyLoaderImpl::readJointContents(Link* link, Mapping* node)
         setJointId(link, id);
     }
 
-    auto jointTypeNode = node->find("jointType");
-    if(jointTypeNode->isValid()){
+    auto jointTypeNode = node->extract("jointType");
+    if(jointTypeNode){
         string jointType = jointTypeNode->toString();
         if(jointType == "revolute"){
             link->setJointType(Link::REVOLUTE_JOINT);
-            link->setActuationMode(Link::JOINT_TORQUE);
         } else if(jointType == "prismatic"){
             link->setJointType(Link::PRISMATIC_JOINT);
-            link->setActuationMode(Link::JOINT_FORCE);
         } else if(jointType == "slide"){
             link->setJointType(Link::PRISMATIC_JOINT);
-            link->setActuationMode(Link::JOINT_FORCE);
         } else if(jointType == "free"){
             link->setJointType(Link::FREE_JOINT);
         } else if(jointType == "fixed"){
             link->setJointType(Link::FIXED_JOINT);
-        } else if(jointType == "pseudoContinuousTrack"){
+        } else if(jointType == "pseudoContinuousTrack"){ // deprecated
             link->setJointType(Link::PSEUDO_CONTINUOUS_TRACK);
             link->setActuationMode(Link::JOINT_SURFACE_VELOCITY);
         } else {
-            node->throwException("Illegal jointType value");
+            jointTypeNode->throwException("Illegal jointType value");
         }
     }
 
-    boost::optional<Vector3> axis = readAxis(node, "jointAxis");
-    if(axis){
-        link->setJointAxis(*axis);
+    if(extractAxis(node, "jointAxis", v)){
+       link->setJointAxis(v);
+    }
+
+    auto actuationModeNode = node->extract("actuationMode");
+    if(actuationModeNode){
+        string mode = actuationModeNode->toString();
+        if(mode == "jointEffort" || mode == "jointTorque" || mode == "jointForce"){
+            link->setActuationMode(Link::JOINT_EFFORT);
+        } else if(mode == "jointDisplacement" || mode == "jointAngle"){
+            link->setActuationMode(Link::JOINT_DISPLACEMENT);
+        } else if(mode == "jointVelocity"){
+            link->setActuationMode(Link::JOINT_VELOCITY);
+        } else if(mode == "jointSurfaceVelocity"){
+            link->setActuationMode(Link::JOINT_SURFACE_VELOCITY);
+        } else if(mode == "linkPosition"){
+            link->setActuationMode(Link::LINK_POSITION);
+        } else {
+            actuationModeNode->throwException("Illegal actuationMode value");
+        }
     }
 
     auto jointAngleNode = node->extract("jointAngle");
@@ -933,8 +958,8 @@ void YAMLBodyLoaderImpl::readJointContents(Link* link, Mapping* node)
     double lower = -std::numeric_limits<double>::max();
     double upper =  std::numeric_limits<double>::max();
     
-    auto jointRangeNode = node->find("jointRange");
-    if(jointRangeNode->isValid()){
+    auto jointRangeNode = node->extract("jointRange");
+    if(jointRangeNode){
         if(jointRangeNode->isScalar()){
             upper = readLimitValue(*jointRangeNode, true);
             lower = -upper;
@@ -957,8 +982,8 @@ void YAMLBodyLoaderImpl::readJointContents(Link* link, Mapping* node)
         link->setJointRange(lower, upper);
     }
     
-    auto maxVelocityNode = node->find("maxJointVelocity");
-    if(maxVelocityNode->isValid()){
+    auto maxVelocityNode = node->extract("maxJointVelocity");
+    if(maxVelocityNode){
         double maxVelocity = maxVelocityNode->toDouble();
         if(link->jointType() == Link::REVOLUTE_JOINT){
             link->setJointVelocityRange(toRadian(-maxVelocity), toRadian(maxVelocity));
@@ -967,8 +992,8 @@ void YAMLBodyLoaderImpl::readJointContents(Link* link, Mapping* node)
         }
     }
 
-    auto velocityRangeNode = node->find("jointVelocityRange");
-    if(velocityRangeNode->isValid()){
+    auto velocityRangeNode = node->extract("jointVelocityRange");
+    if(velocityRangeNode){
         Listing& velocityRange = *velocityRangeNode->toListing();
         if(velocityRange.size() != 2){
             velocityRangeNode->throwException(_("jointVelocityRange must have two elements"));
@@ -986,41 +1011,52 @@ void YAMLBodyLoaderImpl::readJointContents(Link* link, Mapping* node)
 }
 
 
-boost::optional<Vector3> YAMLBodyLoaderImpl::readAxis(Mapping* node, const char* key)
+bool YAMLBodyLoaderImpl::extractAxis(Mapping* node, const char* key, Vector3& out_axis)
 {
-    boost::optional<Vector3> axis;
+    auto axisNode = node->extract(key);
+    if(axisNode){
+        readAxis(axisNode, out_axis);
+        return true;
+    }
+    return false;
+}
 
+
+bool YAMLBodyLoaderImpl::readAxis(Mapping* node, const char* key, Vector3& out_axis)
+{
     auto axisNode = node->find(key);
-
     if(axisNode->isValid()){
-        if(axisNode->isListing()){
-            Vector3 a;
-            read(*axisNode->toListing(), a);
-            axis = a;
-            
-        } else if(axisNode->isString()){
-            string symbol = axisNode->toString();
-            std::transform(symbol.cbegin(), symbol.cend(), symbol.begin(), ::toupper);
-            if(symbol == "X"){
-                axis = Vector3::UnitX();
-            } else if(symbol == "-X"){
-                axis = -Vector3::UnitX();
-            } else if(symbol == "Y"){
-                axis = Vector3::UnitY();
-            } else if(symbol == "-Y"){
-                axis = -Vector3::UnitY();
-            } else if(symbol == "Z"){
-                axis = Vector3::UnitZ();
-            } else if(symbol == "-Z"){
-                axis = -Vector3::UnitZ();
-            }
-        }
-        if(!axis){
-            axisNode->throwException("Illegal axis value");
+        readAxis(axisNode, out_axis);
+        return true;
+    }
+    return false;
+}
+
+
+void YAMLBodyLoaderImpl::readAxis(ValueNode* node, Vector3& out_axis)
+{
+    if(node->isListing()){
+        read(*node->toListing(), out_axis);
+
+    } else if(node->isString()){
+        string symbol = node->toString();
+        std::transform(symbol.cbegin(), symbol.cend(), symbol.begin(), ::toupper);
+        if(symbol == "X"){
+            out_axis = Vector3::UnitX();
+        } else if(symbol == "-X"){
+            out_axis = -Vector3::UnitX();
+        } else if(symbol == "Y"){
+            out_axis = Vector3::UnitY();
+        } else if(symbol == "-Y"){
+            out_axis = -Vector3::UnitY();
+        } else if(symbol == "Z"){
+            out_axis = Vector3::UnitZ();
+        } else if(symbol == "-Z"){
+            out_axis = -Vector3::UnitZ();
+        } else {
+            node->throwException("Illegal axis value");
         }
     }
-
-    return axis;
 }
 
 
@@ -1226,9 +1262,11 @@ bool YAMLBodyLoaderImpl::readTransformContents(Mapping& node, NodeFunction nodeF
     }
     Vector3 scale;
     bool hasScale = read(node, "scale", scale);
+    Affine3 Ts(T);
+    Ts.linear() *= scale.asDiagonal();
     
     if(!isIdentity){
-        transformStack.push_back(transformStack.back() * T);
+        transformStack.push_back(transformStack.back() * Ts);
     }
 
     sceneGroupSetStack.push_back(SceneGroupSet());
@@ -1240,7 +1278,13 @@ bool YAMLBodyLoaderImpl::readTransformContents(Mapping& node, NodeFunction nodeF
             currentSceneGroupSet().newGroup<SgGroup>();
         }
     } else {
-        currentSceneGroupSet().newGroup<SgPosTransform>(T);
+        if(hasScale){
+            currentSceneGroupSet().newGroup<SgPosTransform>(T);
+            sceneGroupSetStack.push_back(SceneGroupSet());
+            currentSceneGroupSet().newGroup<SgScaleTransform>(scale);
+        } else {
+            currentSceneGroupSet().newGroup<SgPosTransform>(T);
+        }
     }
     if(hasElements){
         isSceneNodeAdded = readContainerNode(node, nodeFunction);
@@ -1250,6 +1294,13 @@ bool YAMLBodyLoaderImpl::readTransformContents(Mapping& node, NodeFunction nodeF
 
     if(isSceneNodeAdded){
         addCurrentSceneGroupToParentSceneGroup();
+    }
+
+    if(!isIdentity && hasScale){
+        sceneGroupSetStack.pop_back();
+        if(isSceneNodeAdded){
+            addCurrentSceneGroupToParentSceneGroup();
+        }
     }
     sceneGroupSetStack.pop_back();
 
@@ -1576,12 +1627,15 @@ void YAMLBodyLoaderImpl::readSubBodyNode(Mapping* node)
         subBody = iter->second;
     } else {
         try {
-            YAMLBodyLoader loader;
-            loader.setMessageSink(*os_);
-            loader.setDefaultDivisionNumber(sceneReader.defaultDivisionNumber());
-            loader.impl->doExpandLinkOffsetRotations = false;
+            if(!subLoader){
+                subLoader.reset(new YAMLBodyLoader);
+                subLoader->setMessageSink(*os_);
+                subLoader->impl->isSubLoader = true;
+            }
+            subLoader->setDefaultDivisionNumber(sceneReader.defaultDivisionNumber());
+                
             subBody = new Body;
-            if(loader.load(subBody, filename)){
+            if(subLoader->load(subBody, filename)){
                 subBodyMap[filename] = subBody;
             } else {
                 os() << (format(_("SubBody specified by uri \"%1%\" cannot be loaded.")) % uri) << endl;
@@ -1601,14 +1655,9 @@ void YAMLBodyLoaderImpl::readSubBodyNode(Mapping* node)
 void YAMLBodyLoaderImpl::addSubBodyLinks(BodyPtr subBody, Mapping* node)
 {
     string prefix;
-    if(!node->read("prefix", prefix)){
-        node->throwException("prefix must be specified.");
-    }
+    node->read("prefix", prefix);
 
-    int jointIdOffset;
-    if(!node->read("jointIdOffset", jointIdOffset)){
-        node->throwException("jointIdOffset must be specified.");
-    }
+    int jointIdOffset = node->get("jointIdOffset", 0);
 
     for(int i=0; i < subBody->numLinks(); ++i){
         Link* link = subBody->link(i);
@@ -1620,7 +1669,18 @@ void YAMLBodyLoaderImpl::addSubBodyLinks(BodyPtr subBody, Mapping* node)
             setJointId(link, link->jointId() + jointIdOffset);
         }
     }
+
+    const int numExtraJoints = subBody->numExtraJoints();
+    for(int i=0; i < numExtraJoints; ++i){
+        body->addExtraJoint(subBody->extraJoint(i));
+    }
     
+    for(int i=0; i < subBody->numDevices(); ++i){
+        Device* device = subBody->device(i);
+        device->setName(prefix + device->name());
+        body->addDevice(device);
+    }
+
     Link* rootLink = subBody->rootLink();
 
     readJointContents(rootLink, node);
@@ -1678,10 +1738,7 @@ void YAMLBodyLoaderImpl::readExtraJoint(Mapping* node)
     string jointType = node->get("jointType").toString();
     if(jointType == "piston"){
         joint.type = ExtraJoint::EJ_PISTON;
-        boost::optional<Vector3> axis = readAxis(node, "jointAxis");
-        if(axis){
-            joint.axis = *axis;
-        } else {
+        if(!readAxis(node, "jointAxis", joint.axis)){
             node->throwException(_("The jointAxis value must be specified for the pistion type."));
         }
     } else if(jointType == "ball"){

@@ -123,16 +123,20 @@ AGXVehicleContinuousTrack::AGXVehicleContinuousTrack(AGXVehicleContinuousTrackDe
     m_track = AGXObjectFactory::createVehicleTrack(trackDesc);
     if(!m_track) return;
 
+    AGXScene* agxScene = getAGXBody()->getAGXScene();
+    // Set material
+    m_track->setMaterial(agxScene->getMaterial(desc.materialName));
+
     // Add to simulation
-    getAGXBody()->getAGXScene()->getSimulation()->add((agxSDK::Assembly*)m_track);
-    getAGXBody()->getAGXScene()->getSimulation()->add(new TrackListener(this));
+    agxScene->getSimulation()->add((agxSDK::Assembly*)m_track);
+    agxScene->getSimulation()->add(new TrackListener(this));
 
     /* Set collision Group*/
     // 1. All links(except tracks) are member of body's collision group
     // 2. Collision b/w tracks and links(except wheels) are not need -> create new group trackCollision
     // 3. Collision b/w wheels and tracks needs collision -> remove wheels from trackCollision
     std::stringstream trackCollision;
-    trackCollision << "trackCollision" << generateUID() << std::endl;
+    trackCollision << "trackCollision" << agx::UuidGenerator().generate().str() << std::endl;
     m_track->addGroup(trackCollision.str());
     getAGXBody()->addCollisionGroupNameToAllLink(trackCollision.str());
     getAGXBody()->addCollisionGroupNameToDisableCollision(trackCollision.str());
@@ -158,7 +162,7 @@ AGXVehicleContinuousTrack::AGXVehicleContinuousTrack(AGXVehicleContinuousTrackDe
         }
     }
     m_device->notifyStateChange();
-    printParameters(trackDesc);
+    //printParameters(trackDesc);
 }
 
 void AGXVehicleContinuousTrack::updateTrackState() {
