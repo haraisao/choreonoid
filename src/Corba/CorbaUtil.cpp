@@ -130,7 +130,7 @@ bool NamingContextHelper::checkOrUpdateNamingContext()
         if(CORBA::is_nil(namingContext)){
             errorMessage_ = str(format("The object at %1% is not a NamingContext object.") % namingContextLocation);
         }
-    } catch(CORBA::SystemException& ex) {
+    } catch(CORBA::SystemException&  ) {
         errorMessage_ = str(format("A NameService doesn't exist at \"%1%\".") % namingContextLocation);
         namingContext = CosNaming::NamingContext::_nil();
     }
@@ -172,10 +172,10 @@ CORBA::Object_ptr NamingContextHelper::findObjectSub(const std::string& name, co
                 break;
             }
         
-        } catch(CosNaming::NamingContext::CannotProceed &exc) {
+        } catch(CosNaming::NamingContext::CannotProceed & ) {
             errorMessage_ = str(format("Resolving \"%1%\" cannot be proceeded.") % name);
 
-        } catch(CosNaming::NamingContext::AlreadyBound &exc) {
+        } catch(CosNaming::NamingContext::AlreadyBound & ) {
             errorMessage_ = str(format("\"%1%\" has already been bound.") % name);
 
         } catch(const CORBA::TRANSIENT &){

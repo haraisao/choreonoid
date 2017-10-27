@@ -935,8 +935,10 @@ void RTSDiagramViewImpl::mouseReleaseEvent(QMouseEvent *event)
                 int result = createDialog.exec();
                 if( result == QDialog::Accepted )
                     create = true;
+#if 0
                 else if( result == QDialog::Rejected )
                     ;
+#endif
                 if(create){
                     string id = "";
                     string name = createDialog.nameLineEdit->text().toStdString();

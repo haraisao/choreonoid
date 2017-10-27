@@ -14,6 +14,9 @@ target_link_libraries(PyQtCore ${QT_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_PYTHO
 
 if(QT5)
   qt5_use_modules(PyQtCore Core)
+  if(WIN32)
+    add_definitions("/wd4251")
+  endif()
 endif()
 
 add_cnoid_python_module(PyQtGui

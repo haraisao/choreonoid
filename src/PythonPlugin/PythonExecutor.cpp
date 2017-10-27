@@ -336,7 +336,7 @@ bool PythonExecutorImpl::execMain(std::function<python::object()> execScript)
 #endif
         completed = true;
     }
-    catch(const python::error_already_set& ex) {
+    catch(const python::error_already_set& ) {
 
 #ifdef CNOID_USE_PYBIND11
         exceptionText = ex.what();
@@ -529,7 +529,10 @@ bool PythonExecutor::terminate()
     return impl->terminateScript();
 }
 
-
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable:4311 302)
+#endif
 bool PythonExecutorImpl::terminateScript()
 {
     bool terminated = true;
@@ -550,6 +553,7 @@ bool PythonExecutorImpl::terminateScript()
                    for the handler to check if the termination is requested. By giving the class object,
                    the handler can detect the exception type even in this case.
                 */
+
                 PyThreadState_SetAsyncExc((long)threadId, getExitException().ptr());
             }
             if(wait(20)){
@@ -573,7 +577,9 @@ bool PythonExecutorImpl::terminateScript()
 
     return terminated;
 }
-
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 bool PythonExecutor::hasException() const
 {

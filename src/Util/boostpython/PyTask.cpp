@@ -36,7 +36,7 @@ public :
                     called = true;
                     onMenuRequest(boost::ref(menu));
                 } 
-            } catch(py::error_already_set const& ex) {
+            } catch(py::error_already_set const& ) {
                 py::handleException();
             }
         }
@@ -58,7 +58,7 @@ public :
                     isOverridden = true;
                     func(boost::ref(sequencer));
                 }
-            } catch(py::error_already_set const& ex) {
+            } catch(py::error_already_set const& ) {
                 py::handleException();
             }
         }
@@ -80,7 +80,7 @@ public :
                     isOverridden = true;
                     func(boost::ref(sequencer));
                 }
-            } catch(py::error_already_set const& ex) {
+            } catch(py::error_already_set const& ) {
                 py::handleException();
             }
         }
@@ -103,7 +103,7 @@ public :
                     MappingPtr a = &archive;
                     storeStateFunc(boost::ref(sequencer), a);
                 }
-            } catch(py::error_already_set const& ex) {
+            } catch(py::error_already_set const& ) {
                 py::handleException();
             }
         }
@@ -126,7 +126,7 @@ public :
                     MappingPtr a = const_cast<Mapping*>(&archive);
                     restoreState(boost::ref(sequencer), a);
                 }
-            } catch(py::error_already_set const& ex) {
+            } catch(py::error_already_set const& ) {
                 py::handleException();
             }
         }
@@ -241,7 +241,7 @@ struct PyTaskFunc
             } else {
                 func(boost::ref(proc));
             }
-        } catch(py::error_already_set const& ex) {
+        } catch(py::error_already_set const& ) {
             py::handleException();
         }
     }
@@ -255,7 +255,7 @@ struct PyMenuItemFunc
         py::gil_scoped_acquire lock;
         try {
             func();
-        } catch(py::error_already_set const& ex) {
+        } catch(py::error_already_set const& ) {
             py::handleException();
         }
     }
@@ -269,7 +269,7 @@ struct PyCheckMenuItemFunc
         py::gil_scoped_acquire lock;
         try {
             func(on);
-        } catch(py::error_already_set const& ex) {
+        } catch(py::error_already_set const& ) {
             py::handleException();
         }
     }

@@ -241,6 +241,7 @@ endif()
 
 if(MSVC)
 add_definitions(-D__WIN32__ -D__x86__ -D__NT__ -D__OSVERSION__=4 -D_CRT_SECURE_NO_DEPRECATE -D_WIN32_WINNT=0x0500 -DRTC_CORBA_CXXMAPPING11)
+add_definitions("/wd4290 /wd4996")
 endif()
 
 make_gettext_mofiles(${plugin} mofiles)

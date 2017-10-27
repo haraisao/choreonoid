@@ -600,9 +600,9 @@ void BodyRTCItem::detectRtcs()
     RTC::Manager& rtcManager = RTC::Manager::instance();
     
     string nameServer = rtcManager.getConfig()["corba.nameservers"];
-    int comPos = nameServer.find(",");
+    int comPos = (int)nameServer.find(",");
     if (comPos < 0){
-        comPos = nameServer.length();
+        comPos = (int)nameServer.length();
     }
     nameServer = nameServer.substr(0, comPos);
     naming = new RTC::CorbaNaming(rtcManager.getORB(), nameServer.c_str());
@@ -615,7 +615,7 @@ void BodyRTCItem::detectRtcs()
             CORBA::Object_var objRef;
             try {
                 objRef = naming->resolve(rtcNamingName.c_str());
-            } catch(const CosNaming::NamingContext::NotFound &ex) {
+            } catch(const CosNaming::NamingContext::NotFound &) {
 
             }
             if(CORBA::is_nil(objRef)) {
@@ -663,7 +663,7 @@ void BodyRTCItem::detectRtcs()
                     CORBA::Object_var objRef;
                     try {
                         objRef = naming->resolve(rtcNamingName.c_str());
-                    } catch(const CosNaming::NamingContext::NotFound &ex) {
+                    } catch(const CosNaming::NamingContext::NotFound &) {
 
                     }
                     if(CORBA::is_nil(objRef)){
@@ -930,7 +930,7 @@ void BodyRTCItem::setupRtcConnections()
                     RTC::RTObject_var rtcRef;
                     try {
                         rtcRef = RTC::RTObject::_narrow(naming->resolve(bl[i].binding_name));
-                    } catch(const CosNaming::NamingContext::NotFound &ex) {
+                    } catch(const CosNaming::NamingContext::NotFound &) {
                         
                     }
                     rtcRefs.push_back(rtcRef);

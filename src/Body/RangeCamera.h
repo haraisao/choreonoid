@@ -25,7 +25,7 @@ public:
     virtual void forEachActualType(std::function<bool(const std::type_info& type)> func);
     virtual void clearState();
 
-    int numPoints() const { return points_->size(); }
+    int numPoints() const { return (int)points_->size(); }
 
     typedef std::vector<Vector3f> PointData;
 

@@ -38,7 +38,7 @@ template<> struct python_function_caller0<void> {
         python::gil_scoped_acquire lock;
         try {
             func();
-        } catch(boost::python::error_already_set const& ex) {
+        } catch(boost::python::error_already_set const& ) {
             python::handleException();
         }
     }
@@ -52,7 +52,7 @@ template<typename T, typename ARG1> struct python_function_caller1 {
         T result;
         try {
             result = func(pyGetSignalArgObject(arg1));
-        } catch(boost::python::error_already_set const& ex) {
+        } catch(boost::python::error_already_set const& ) {
             python::handleException();
         }
         return result;
@@ -66,7 +66,7 @@ template<typename ARG1> struct python_function_caller1<void, ARG1> {
         python::gil_scoped_acquire lock;
         try {
             func(pyGetSignalArgObject(arg1));
-        } catch(boost::python::error_already_set const& ex) {
+        } catch(boost::python::error_already_set const& ) {
             python::handleException();
         }
     }
@@ -94,7 +94,7 @@ template<typename ARG1, typename ARG2> struct python_function_caller2<void, ARG1
         python::gil_scoped_acquire lock;
         try {
             func(pyGetSignalArgObject(arg1), pyGetSignalArgObject(arg2));
-        } catch(boost::python::error_already_set const& ex) {
+        } catch(boost::python::error_already_set const& ) {
             python::handleException();
         }
     }

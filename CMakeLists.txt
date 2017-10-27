@@ -1105,6 +1105,7 @@ if(ENABLE_PYTHON)
     
     if(MSVC)
       set_target_properties(${target} PROPERTIES SUFFIX .pyd)
+      add_definitions("/wd4624 /wd4244")
     else()
       if(USE_BOOST_PYTHON)
 	set_target_properties(${target}  PROPERTIES

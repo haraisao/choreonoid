@@ -6,6 +6,10 @@
 #include <QObject>
 #include <QTimer>
 
+#ifdef _WIN32
+#pragma warning(disable:4251 244)
+#endif
+
 #ifdef __PYTHON3__
 #define PyString_Check	PyUnicode_Check
 #define PyString_AsString	PyUnicode_AsUTF8

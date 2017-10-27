@@ -22,7 +22,7 @@ struct PyFunc
         python::gil_scoped_acquire lock;
         try {
             func();
-        } catch(python::error_already_set const& ex) {
+        } catch(python::error_already_set const& ) {
             python::handleException();
         }
     }

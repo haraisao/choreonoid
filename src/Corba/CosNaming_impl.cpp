@@ -346,7 +346,7 @@ void NamingContext_impl::bind_sub
                 throw CosNaming::NamingContext::AlreadyBound();
             }
         }
-        catch (CosNaming::NamingContext::NotFound& ex) {
+        catch (CosNaming::NamingContext::NotFound& ) {
             node = 0;
         }
 

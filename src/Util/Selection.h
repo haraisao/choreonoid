@@ -18,7 +18,7 @@ public:
 
     explicit Selection(size_t size, const char* domainname = 0);
         
-    int size() const {
+    size_t size() const {
         return  symbols_.size();
     }
 

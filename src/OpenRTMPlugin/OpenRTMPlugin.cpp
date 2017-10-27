@@ -27,6 +27,7 @@
 #include <rtm/ComponentActionListener.h>
 #include <thread>
 #include "gettext.h"
+#include "exportdecl.h"
 
 using namespace std;
 using namespace std::placeholders;

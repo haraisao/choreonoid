@@ -2,6 +2,7 @@
   @author Shin'ichiro Nakaoka
 */
 
+#include "../exportdecl.h"
 #include "../PoseSeqItem.h"
 #include <cnoid/PyUtil>
 
