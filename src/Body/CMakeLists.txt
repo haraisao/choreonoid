@@ -150,6 +150,10 @@ function(add_cnoid_body_customizer)
     qt5_use_modules(${target} Widgets)
   endif()
 
+  if(MSVC)
+    add_definitions("/wd4819")
+  endif()
+
   install(TARGETS ${target}
     RUNTIME DESTINATION ${CNOID_PLUGIN_SUBDIR}/customizer CONFIGURATIONS Release Debug RelWithDebInfo MinSizeRel
     LIBRARY DESTINATION ${CNOID_PLUGIN_SUBDIR}/customizer CONFIGURATIONS Release Debug RelWithDebInfo MinSizeRel)
