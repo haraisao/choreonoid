@@ -976,6 +976,9 @@ function(add_cnoid_plugin)
     endif()
   endif()
 
+  if(MSVC)
+    add_definitions("/wd4290")
+  endif()
 endfunction()
 
 

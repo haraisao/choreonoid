@@ -78,6 +78,7 @@ if(OPENRTM_DIR)
       optimized ${librtc} debug ${librtc}d
       optimized ${libcoil} debug ${libcoil}d
       optimized ws2_32 debug ws2_32)
+      add_definitions("/wd4290")
     endif()
     if(OPENRTM_VERSION STREQUAL "1.1.1")
       if(CMAKE_CL_64)
@@ -131,6 +132,7 @@ set(headers BodyIoRTC.h exportdecl.h)
 
 if(MSVC)
   add_definitions(-DRTC_CORBA_CXXMAPPING11)
+  add_definitions("/wd4290")
 endif()
 
 add_cnoid_library(${target2} SHARED ${sources} ${headers})
