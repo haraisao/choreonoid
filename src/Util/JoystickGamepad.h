@@ -12,7 +12,7 @@
 
 namespace cnoid{
 
-class CNOID_EXPORT Gamepad : public Joystick{
+class  Gamepad : public Joystick{
 public:
     inline double getStickLX(){ return getPosition(0); }
     inline double getStickLY(){ return -getPosition(1); }
