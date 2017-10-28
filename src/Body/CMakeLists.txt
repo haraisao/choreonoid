@@ -173,6 +173,10 @@ function(add_cnoid_simple_controller)
 
   add_library(${target} SHARED ${ARGV})
 
+  if(MSVC)
+    add_definitions("/wd4819")
+  endif()
+
   target_link_libraries(${target} CnoidBody)
 
   set_target_properties(${target} PROPERTIES
