@@ -14,7 +14,6 @@
 #include "RTSDiagramView.h"
 #include "RTSItem.h"
 #include "deprecated/BodyRTCItem.h"
-#include "deprecated/OpenHRPClockGeneratorItem.h"
 #include <cnoid/Plugin>
 #include <cnoid/ItemManager>
 #include <cnoid/Archive>
@@ -157,7 +156,6 @@ public:
         ControllerRTCItem::initialize(this);
         RTCItem::initialize(this);
         BodyRTCItem::initialize(this);
-        OpenHRPClockGeneratorItem::initialize(this);
         
         VirtualRobotRTC::registerFactory(manager, "VirtualRobot");
         
@@ -257,7 +255,7 @@ public:
         connectionToSigSimulaionAboutToStart.disconnect();
         
         std::vector<RTC::RTObject_impl*> rtcs = manager->getComponents();
-        for(int i=0; i < rtcs.size(); ++i){
+        for(size_t i=0; i < rtcs.size(); ++i){
             RTC::RTObject_impl* rtc = rtcs[i];
             RTC::ExecutionContextList_var eclist = rtc->get_participating_contexts();
             if(eclist->length() > 0){
@@ -310,7 +308,7 @@ CNOID_EXPORT int cnoid::numUnmanagedRTCs()
 {
     int n = 0;
     std::vector<RTC::RTObject_impl*> rtcs = manager->getComponents();
-    for(int i=0; i < rtcs.size(); ++i){
+    for(size_t i=0; i < rtcs.size(); ++i){
         RTC::RTObject_impl* rtc = rtcs[i];
         if(managedComponents.find(rtc) == managedComponents.end()){
             ++n;
@@ -326,7 +324,7 @@ CNOID_EXPORT int cnoid::deleteUnmanagedRTCs()
     
     std::vector<RTC::RTObject_impl*> rtcs = manager->getComponents();
     //  deactivate
-    for(int i=0; i < rtcs.size(); ++i){
+    for(size_t i=0; i < rtcs.size(); ++i){
         RTC::RTObject_impl* rtc = rtcs[i];
         if(managedComponents.find(rtc) == managedComponents.end()){
         	RTC::ExecutionContextList_var eclist = rtc->get_owned_contexts();
@@ -347,7 +345,7 @@ CNOID_EXPORT int cnoid::deleteUnmanagedRTCs()
     }
 
 #ifdef OPENRTM_VERSION110
-    for(int i=0; i < rtcs.size(); ++i){
+    for(size_t i=0; i < rtcs.size(); ++i){
         RTC::RTObject_impl* rtc = rtcs[i];
         if(managedComponents.find(rtc) == managedComponents.end()){
             RTC::ExecutionContextList_var eclist = rtc->get_participating_contexts();
@@ -364,7 +362,7 @@ CNOID_EXPORT int cnoid::deleteUnmanagedRTCs()
             if(myEClist->length() > 0 && !CORBA::is_nil(myEClist[0])){
             	OpenRTM::ExtTrigExecutionContextService_var myEC = OpenRTM::ExtTrigExecutionContextService::_narrow(myEClist[0]);
                 RTC::RTCList rtcs = myEC->get_profile()->participants;
-            	for(int i=0; i < rtcs.length(); ++i){
+            	for(size_t i=0; i < rtcs.length(); ++i){
             		myEC->remove_component(rtcs[i]);
             	}
             }
@@ -401,7 +399,7 @@ CNOID_EXPORT int cnoid::deleteUnmanagedRTCs()
     }
 #endif
 
-    for(int i=0; i < rtcs.size(); ++i){
+    for(size_t i=0; i < rtcs.size(); ++i){
         RTC::RTObject_impl* rtc = rtcs[i];
         if(managedComponents.find(rtc) == managedComponents.end()){
         	//std::cout << rtc->getInstanceName() << std::endl;
@@ -434,7 +432,7 @@ CNOID_EXPORT int cnoid::deleteUnmanagedRTCs()
 #ifdef OPENRTM_VERSION110
     		OpenRTM::ExtTrigExecutionContextService_var myEC = OpenRTM::ExtTrigExecutionContextService::_narrow(myEClist[0]);
                 RTC::RTCList rtcs = myEC->get_profile()->participants;
-    		for(int i=0; i < rtcs.length(); ++i){
+    		for(size_t i=0; i < rtcs.length(); ++i){
     			myEC->remove_component(rtcs[i]);
     		}
 #else

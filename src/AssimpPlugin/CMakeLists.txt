@@ -1,9 +1,3 @@
-#
-#if(NOT UNIX)
-#  return()
-#endif()
-
-
 pkg_check_modules(ASSIMP QUIET assimp>=3.0)
 if(ASSIMP_FOUND)
   option(BUILD_ASSIMP_PLUGIN "Building ASSIMPPlugin" ON)
@@ -27,30 +21,20 @@ elseif(MSVC)
 endif()
 
 if(NOT ASSIMP_FOUND )
-  if(MSVC)
-    find_file(ASSIMP_CONFIG assimp-config.cmake HINTS ${ASSIMP_DIR}/lib/cmake/* )
-
-    if (ASSIMP_CONFIG)
-      include(${ASSIMP_CONFIG})
-    else()
-      message(FATAL_ERROR "NO ASSIMP_CONFIG file found.")
-    endif()
-
-	if(INSTALL_RUNTIME_DEPENDENCIES)
-        install(PROGRAMS ${ASSIMP_DIR}/bin/assimp${ASSIMP_LIBRARY_SUFFIX}.dll DESTINATION bin
-	      CONFIGURATIONS Release RelWithDebInfo MinSizeRel Debug)
-      
-        if(INSTALL_SDK_WITH_EXTLIBS)
-	      install(FILES ${ASSIMP_DIR}/lib/assimp${ASSIMP_LIBRARY_SUFFIX}.lib DESTINATION lib
-	        CONFIGURATIONS Release RelWithDebInfo MinSizeRel Debug)
-	      install(DIRECTORY ${ASSIMP_DIR}/include/assimp DESTINATION ${CNOID_HEADER_SUBDIR})
-        endif()
-	endif()
-  else()
+  if(UNIX)
     set(ASSIMP_LIBRARIES assimp)
+  elseif(MSVC)
+    if( MSVC12 )
+      set(MSVC_PREFIX "vc120")
+    elseif( MSVC14 )
+      set(MSVC_PREFIX "vc140")
+    else()
+      set(MSVC_PREFIX "vc150")
+    endif()
+      set(ASSIMP_LIBRARIES "assimp-${MSVC_PREFIX}-mt")
+  endif()
     set(ASSIMP_INCLUDE_DIRS ${ASSIMP_DIR}/include)
     set(ASSIMP_LIBRARY_DIRS ${ASSIMP_DIR}/lib)
-  endif()
 endif()
 
 set(target CnoidAssimpPlugin)
@@ -69,3 +53,10 @@ make_gettext_mofiles(${target} mofiles)
 add_cnoid_plugin(${target} SHARED ${sources} ${headers} ${mofiles})
 target_link_libraries(${target} CnoidBase ${ASSIMP_LIBRARIES})
 apply_common_setting_for_plugin(${target} "${headers}")
+
+if(MSVC)
+  if(INSTALL_RUNTIME_DEPENDENCIES)
+    install(PROGRAMS  ${ASSIMP_DIR}/bin/${ASSIMP_LIBRARIES}.dll DESTINATION bin
+      CONFIGURATIONS Release Debug)
+  endif()
+endif()

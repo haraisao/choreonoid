@@ -18,8 +18,8 @@ public:
 
     explicit Selection(size_t size, const char* domainname = 0);
         
-    size_t size() const {
-        return  symbols_.size();
+    int size() const {
+        return  static_cast<int>(symbols_.size());
     }
 
     operator bool() const {

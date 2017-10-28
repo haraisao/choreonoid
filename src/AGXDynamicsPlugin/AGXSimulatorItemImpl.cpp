@@ -1,29 +1,59 @@
 #include "AGXSimulatorItemImpl.h"
 #include "AGXSimulatorItem.h"
-#include <assert.h>
 #include <cnoid/EigenUtil>
+#include <cnoid/WorldItem>
+#include <cnoid/MaterialTable>
+#include "AGXConvert.h"
+#include <unordered_map>
 #include "gettext.h"
 
 using namespace std;
 
 namespace cnoid {
 
-AGXSimulatorItemImpl::AGXSimulatorItemImpl(AGXSimulatorItemPtr self) : self(self)
+const std::unordered_map<std::string, agx::ContactMaterial::ContactReductionMode> agxContactReductionModeMap{
+    {"", agx::ContactMaterial::ContactReductionMode::REDUCE_GEOMETRY},
+    {"default", agx::ContactMaterial::ContactReductionMode::REDUCE_GEOMETRY},
+    {"reduceGeometry", agx::ContactMaterial::ContactReductionMode::REDUCE_GEOMETRY},
+    {"reduceALL", agx::ContactMaterial::ContactReductionMode::REDUCE_ALL},
+    {"reduceNone", agx::ContactMaterial::ContactReductionMode::REDUCE_NONE}
+};
+
+const std::unordered_map<std::string, AGXFrictionModelType> agxFrictionModelTypeMap{
+    {"", AGXFrictionModelType::DEFAULT},
+    {"default", AGXFrictionModelType::DEFAULT},
+    {"box", AGXFrictionModelType::BOX},
+    {"scaledBox", AGXFrictionModelType::SCALED_BOX},
+    {"cone", AGXFrictionModelType::ITERATIVE_PROJECTED_CONE}
+};
+
+const std::unordered_map<std::string, agx::FrictionModel::SolveType> agxSolveTypeMap{
+    {"", agx::FrictionModel::SolveType::SPLIT},
+    {"default", agx::FrictionModel::SolveType::SPLIT},
+    {"split", agx::FrictionModel::SolveType::SPLIT},
+    {"direct", agx::FrictionModel::SolveType::DIRECT},
+    {"iterative", agx::FrictionModel::SolveType::ITERATIVE},
+    {"directAndIterative", agx::FrictionModel::SolveType::DIRECT_AND_ITERATIVE}
+};
+
+AGXSimulatorItemImpl::AGXSimulatorItemImpl(AGXSimulatorItem* self)
+    : self(self)
 {
     initialize();
     AGXSimulationDesc simDesc;
     const agx::Vec3& g = simDesc.gravity;
     _p_gravity = Vector3(g.x(), g.y(), g.z());
-    _p_numThreads = simDesc.numThreads;
+    _p_numThreads = (int)simDesc.numThreads;
     _p_enableContactReduction = simDesc.enableContactReduction;
     _p_contactReductionBinResolution = simDesc.contactReductionBinResolution;
-    _p_contactReductionThreshhold = simDesc.contactReductionThreshhold;
+    _p_contactReductionThreshhold = (int)simDesc.contactReductionThreshhold;
     _p_enableAutoSleep = simDesc.enableAutoSleep;
 }
 
-AGXSimulatorItemImpl::AGXSimulatorItemImpl(AGXSimulatorItemPtr self, const AGXSimulatorItemImpl& org) 
+AGXSimulatorItemImpl::AGXSimulatorItemImpl(AGXSimulatorItem* self, const AGXSimulatorItemImpl& org)
     : AGXSimulatorItemImpl(self) 
 {
+    (void) org;
     initialize();    
 }
 AGXSimulatorItemImpl::~AGXSimulatorItemImpl(){}
@@ -38,16 +68,11 @@ void AGXSimulatorItemImpl::doPutProperties(PutPropertyFunction & putProperty)
     putProperty(_("ContactReductionBinResolution"), _p_contactReductionBinResolution, changeProperty(_p_contactReductionBinResolution));
     putProperty(_("ContactReductionThreshhold"), _p_contactReductionThreshhold, changeProperty(_p_contactReductionThreshhold));
     putProperty(_("AutoSleep(experimental)"), _p_enableAutoSleep, changeProperty(_p_enableAutoSleep));
-    //putProperty(_("All link positions"), isAllLinkPositionOutputMode,
-    //        [&](bool on){ return onAllLinkPositionOutputModeChanged(on); });
-
-//     putProperty("Friction Model Type", frictionModelType, changeProperty(frictionModelType));
-//    putProperty(("Step mode"), stepMode, changeProperty(stepMode));
-//    putProperty(("Step mode"), "hoge");
 }
 
 bool AGXSimulatorItemImpl::store(Archive & archive)
 {
+    (void) archive;
     // Write agx parameter to save
     //archive.write("friction", friction);
     return false;
@@ -55,6 +80,7 @@ bool AGXSimulatorItemImpl::store(Archive & archive)
 
 bool AGXSimulatorItemImpl::restore(const Archive & archive)
 {
+    (void) archive;
     // Write agx parameter to restore
     return false;
 }
@@ -65,66 +91,110 @@ SimulationBody * AGXSimulatorItemImpl::createSimulationBody(Body * orgBody)
     return new AGXBody(*orgBody);
 }
 
-#define AGX_SCENE
 bool AGXSimulatorItemImpl::initializeSimulation(const std::vector<SimulationBody*>& simBodies)
 {
-    cout << "initializeSimulation" << endl;
     const Vector3& g = _p_gravity;
     AGXSceneDesc sd;
     sd.simdesc.timeStep = self->worldTimeStep();
     sd.simdesc.gravity = agx::Vec3(g(0), g(1), g(2));
     sd.simdesc.numThreads = _p_numThreads;
     sd.simdesc.enableContactReduction = _p_enableContactReduction;
-    sd.simdesc.contactReductionBinResolution = _p_contactReductionBinResolution;
-    sd.simdesc.contactReductionThreshhold = _p_contactReductionThreshhold;
+    sd.simdesc.contactReductionBinResolution = (agx::UInt8)_p_contactReductionBinResolution;
+    sd.simdesc.contactReductionThreshhold = (agx::UInt8)_p_contactReductionThreshhold;
     sd.simdesc.enableAutoSleep = _p_enableAutoSleep;
     agxScene = AGXScene::create(sd);
 
-    createMaterialTable();
+    createAGXMaterialTable();
 
-    for(size_t i=0; i < simBodies.size(); ++i){
-        AGXBody* body = static_cast<AGXBody*>(simBodies[i]);
+    for(auto simBody : simBodies){
+        AGXBody* body = static_cast<AGXBody*>(simBody);
         // Create rigidbody, geometry, constraints
         body->createBody(agxScene);
         body->setSensor(self->worldTimeStep(), g);
     }
 
-    saveSimulationToAGXFile();
-
     return true;
 }
 
-void AGXSimulatorItemImpl::createMaterialTable()
+#define SET_AGXMATERIAL_FIELD(field) desc.field = mat->info<double>(#field, desc.field)
+void AGXSimulatorItemImpl::createAGXMaterialTable()
 {
-    // Create default AGX material and contact material
-    AGXMaterialDesc matDesc;
-    agxScene->createMaterial(matDesc);
-    AGXContactMaterialDesc cmatDesc;
-    agxScene->createContactMaterial(cmatDesc);
+    WorldItem* const worldItem = self->findOwnerItem<WorldItem>();
+    if(!worldItem) return;
+    MaterialTable* const matTable = worldItem->materialTable();
 
-    // Create AGX material and contact material from yaml file
+    // Create AGX material
+    matTable->forEachMaterial(
+        [&](int id, Material* mat){
+            AGXMaterialDesc desc;
+            desc.name = Material::name(id);
+            SET_AGXMATERIAL_FIELD(density);
+            SET_AGXMATERIAL_FIELD(youngsModulus);
+            SET_AGXMATERIAL_FIELD(poissonRatio);
+            desc.viscosity = mat->viscosity();
+            SET_AGXMATERIAL_FIELD(damping);
+            desc.roughness = mat->roughness();
+            SET_AGXMATERIAL_FIELD(surfaceViscosity);
+            SET_AGXMATERIAL_FIELD(adhesionForce);
+            SET_AGXMATERIAL_FIELD(adhesivOverlap);
+            getAGXScene()->createMaterial(desc);
+        });
+
+    // Create AGX contact material
+    matTable->forEachMaterialPair(
+        [&](int id1, int id2, ContactMaterial* mat){
+            Mapping* info = mat->info();
+            AGXContactMaterialDesc desc;
+            desc.nameA = Material::name(id1);
+            desc.nameB = Material::name(id2);
+            SET_AGXMATERIAL_FIELD(youngsModulus);
+            desc.restitution = mat->restitution();
+            SET_AGXMATERIAL_FIELD(damping);
+            desc.friction = mat->dynamicFriction();
+            SET_AGXMATERIAL_FIELD(surfaceViscosity);
+            SET_AGXMATERIAL_FIELD(adhesionForce);
+            SET_AGXMATERIAL_FIELD(adhesivOverlap);
+            auto binNode = info->find("contactReductionBinResolution");
+            if(binNode->isValid()) desc.contactReductionBinResolution = (agx::UInt8)binNode->toInt();
+
+            auto crmNode = info->find("contactReductionMode");
+            agxConvert::setValue(crmNode, agxContactReductionModeMap, "", desc.contactReductionMode,
+                "Illegal contactReductionMode value. Use default.");
+
+            auto frictionModelNode = info->find("frictionModel");
+            if(frictionModelNode->isValid()){
+                vector<string> fmVec;
+                if(agxConvert::setVector(frictionModelNode, 2, fmVec)){
+                    if(!agxConvert::setValue(fmVec[0], agxFrictionModelTypeMap, "", desc.frictionModelType))
+                        info->throwException("Illegal frictionModelType value. Use default.");
+                    if(!agxConvert::setValue(fmVec[1], agxSolveTypeMap, "", desc.solveType))
+                        info->throwException("Illegal solveType value. Use default.");
+                }else{
+                    info->throwException("Illegal frictionModel value. Use default.");
+                }
+            }
+            getAGXScene()->createContactMaterial(desc);
+        });
+
+    //getAGXScene()->printContactMaterialTable();
 }
+#undef SET_AGXMATERIAL_FIELD
 
 bool AGXSimulatorItemImpl::stepSimulation(const std::vector<SimulationBody*>& activeSimBodies)
 {
-//    cout << "step" << std::endl;
-    for(size_t i=0; i < activeSimBodies.size(); ++i){
-        AGXBody* agxBody = static_cast<AGXBody*>(activeSimBodies[i]);
-        agxBody->setControlInputToAGX();
+    for(auto simBody : activeSimBodies){
+        static_cast<AGXBody*>(simBody)->setControlInputToAGX();
     }
 
     agxScene->stepSimulation();
 
-    for(size_t i=0; i < activeSimBodies.size(); ++i){
-        AGXBody* agxBody = static_cast<AGXBody*>(activeSimBodies[i]);
+    for(auto simBody : activeSimBodies){
+        AGXBody* agxBody = static_cast<AGXBody*>(simBody);
         agxBody->setLinkStateToCnoid();
 
-        if(agxBody->hasForceSensors()){
-            agxBody->updateForceSensors();
-        }
-        if(agxBody->hasGyroOrAccelerationSensors()){
-            agxBody->updateGyroAndAccelerationSensors();
-        }
+        // Update sensors
+        if(agxBody->hasForceSensors())              agxBody->updateForceSensors();
+        if(agxBody->hasGyroOrAccelerationSensors()) agxBody->updateGyroAndAccelerationSensors();
     }
     return true;
 }
@@ -153,11 +223,15 @@ Vector3 AGXSimulatorItemImpl::getGravity() const
 {
     const agx::Vec3& g = agxScene->getGravity();
     return Vector3(g.x(), g.y(), g.z());
-};
+}
 
-    bool AGXSimulatorItemImpl::saveSimulationToAGXFile()
+bool AGXSimulatorItemImpl::saveSimulationToAGXFile()
 {
     return agxScene->saveSceneToAGXFile();
+}
+
+AGXScene* AGXSimulatorItemImpl::getAGXScene(){
+    return agxScene;
 }
 
 }

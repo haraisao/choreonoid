@@ -32,7 +32,7 @@ struct AGXMaterialDesc
 {
     AGXMaterialDesc(){
         name = default_name();
-        density = 1000;
+        density = 1000.0;
         youngsModulus = 4.0E8;
         poissonRatio = 0.3;
         viscosity = 0.5;
@@ -62,9 +62,9 @@ struct AGXMaterialDesc
 
 enum AGXFrictionModelType
 {
-    DEFAULT,
+    DEFAULT = 0,
     BOX,
-    SCALE_BOX,
+    SCALED_BOX,
     ITERATIVE_PROJECTED_CONE
 };
 
@@ -80,7 +80,6 @@ struct AGXContactMaterialDesc
         surfaceViscosity = 1.0E-8;
         adhesionForce = 0.0;
         adhesivOverlap = 0.0;
-        frictionDirection = agx::ContactMaterial::FrictionDirection::BOTH_PRIMARY_AND_SECONDARY;
         frictionModelType = AGXFrictionModelType::DEFAULT;
         solveType =  agx::FrictionModel::SolveType::SPLIT;
         contactReductionMode = agx::ContactMaterial::ContactReductionMode::REDUCE_GEOMETRY;
@@ -94,8 +93,7 @@ struct AGXContactMaterialDesc
     agx::Real friction;             // sqrt(m1.rough * m2.rough)
     agx::Real surfaceViscosity;     // m1.svisco + m2.svisco
     agx::Real adhesionForce;        // attracive force[N], m1.ad + m2.ad
-    agx::Real adhesivOverlap;       // 
-    agx::ContactMaterial::FrictionDirection frictionDirection;
+    agx::Real adhesivOverlap;       //
     AGXFrictionModelType frictionModelType;
     agx::FrictionModel::SolveType solveType;
     agx::ContactMaterial::ContactReductionMode contactReductionMode;
@@ -125,19 +123,18 @@ struct AGXGeometryDesc
         isPseudoContinuousTrack = false;
     };
     bool isPseudoContinuousTrack;
-    agx::Vec3f axis;
-    agx::Vec3f surfacevel;
+    agx::Vec3 axis;
     agx::Name selfCollsionGroupName;
 };
 
 class AGXPseudoContinuousTrackGeometry : public agxCollide::Geometry
 {
 public:
-    void setAxis(const agx::Vec3f& axis);
-    agx::Vec3f getAxis() const;
+    void setAxis(const agx::Vec3& axis);
+    agx::Vec3 getAxis() const;
     virtual agx::Vec3f calculateSurfaceVelocity( const agxCollide::LocalContactPoint& point , size_t index ) const;
 private:
-    agx::Vec3f m_axis;
+    agx::Vec3 m_axis;
 };
 
 enum AGXShapeType
@@ -196,6 +193,7 @@ struct AGXTrimeshDesc : public AGXShapeDesc
         optionsMask = 0;
         bottomMargin = 0;
     }
+    unsigned int triangles;
     agx::Vec3Vector vertices;
     agx::UInt32Vector indices;
     const char* name;
@@ -378,8 +376,14 @@ public:
     static agx::PrismaticRef createConstraintPrismatic(const AGXPrismaticDesc& desc);
     static agx::BallJointRef createConstraintBallJoint(const AGXBallJointDesc& desc);
     static agx::PlaneJointRef createConstraintPlaneJoint(const AGXPlaneJointDesc& desc);
+private:
+    static void setMotor1DParam(agx::Motor1D* motor, const AGXMotor1DDesc& desc);
+    static void setLock1DParam(agx::Lock1D* controller, const AGXLock1DDesc& desc);
+    static void setRange1DParam(agx::Range1D* controller, const AGXRange1DDesc& desc);
+public:
     static agxVehicle::TrackWheelRef createVehicleTrackWheel(const AGXVehicleTrackWheelDesc& desc);
     static agxVehicle::TrackRef createVehicleTrack(const AGXVehicleTrackDesc& desc);
+    static agxCollide::ConvexBuilderRef createConvexBuilder();
 };
 
 }

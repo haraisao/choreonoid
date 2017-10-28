@@ -35,7 +35,7 @@ public:
     void append(Link* link, bool isDownward = true);
 
     int numLinks() const {
-        return (int)links.size();
+        return static_cast<int>(links.size());
     }
 
     bool empty() const {
@@ -85,6 +85,6 @@ private:
     void traverse(Link* link, bool doUpward, bool doDownward, bool isUpward, Link* prev);
 };
 
-};
+}
 
 #endif

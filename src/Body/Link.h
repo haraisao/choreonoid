@@ -35,7 +35,7 @@ typedef ref_ptr<Mapping> MappingPtr;
 class CNOID_EXPORT Link : public Referenced
 {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     Link();
 
@@ -48,6 +48,8 @@ public:
     virtual Link* clone() const;
         
     virtual ~Link();
+
+    const std::string& name() const { return name_; }
 
     int index() const { return index_; }
     bool isValid() const { return (index_ >= 0); }
@@ -131,10 +133,12 @@ public:
         */
         /// fixed joint(0 dof)
         FIXED_JOINT = 3,
-        /// special joint for simplified simulation of a continuous track
+
+        /**
+           special joint for simplified simulation of a continuous track
+           \deprecated
+        */
         PSEUDO_CONTINUOUS_TRACK = 4,
-        // deprecated
-        CRAWLER_JOINT = 5
     };
 
     int jointId() const { return jointId_; }
@@ -156,6 +160,9 @@ public:
     const Vector3& jointAxis() const { return a_; }
     const Vector3& d() const { return a_; } // joint axis alias for a slide joint
 
+    /// Equivalent rotor inertia: n^2*Jm [kg.m^2]
+    double Jm2() const { return Jm2_; }
+
     enum ActuationMode {
         NO_ACTUATION = 0,
         JOINT_TORQUE = 1,
@@ -169,8 +176,8 @@ public:
     };
 
     ActuationMode actuationMode() const { return actuationMode_; }
-
     void setActuationMode(ActuationMode mode) { actuationMode_ = mode; }
+    std::string actuationModeString() const;
     
     double q() const { return q_; }
     double& q() { return q_; }
@@ -212,9 +219,6 @@ public:
     ///< inertia tensor (self local, around c)
     const Matrix3& I() const { return I_; }    
 
-    /// Equivalent rotor inertia: n^2*Jm [kg.m^2]
-    double Jm2() const { return Jm2_; }
-
     const Vector6& F_ext() const { return F_ext_; }
     Vector6& F_ext() { return F_ext_; }
     Vector6::ConstFixedSegmentReturnType<3>::Type f_ext() const { return F_ext_.head<3>(); }
@@ -222,11 +226,14 @@ public:
     Vector6::ConstFixedSegmentReturnType<3>::Type tau_ext() const { return F_ext_.tail<3>(); }
     Vector6::FixedSegmentReturnType<3>::Type tau_ext() { return F_ext_.tail<3>(); }
 
-    const std::string& name() const { return name_; }
-
+    int materialId() const { return materialId_; }
+    std::string materialName() const;
+    
     SgNode* shape() const { return visualShape_; }
     SgNode* visualShape() const { return visualShape_; }
     SgNode* collisionShape() const { return collisionShape_; }
+
+    void setName(const std::string& name);
 
     // functions for constructing a link
     void setIndex(int index) { index_ = index; }
@@ -270,9 +277,10 @@ public:
     void setMass(double m) { m_ = m; }
     void setInertia(const Matrix3& I) { I_ = I; }
     void setEquivalentRotorInertia(double Jm2) { Jm2_ = Jm2; }
-        
-    void setName(const std::string& name);
 
+    void setMaterial(int id) { materialId_ = id; }
+    void setMaterial(const std::string& name);
+    
     void setShape(SgNode* shape);
     void setVisualShape(SgNode* shape);
     void setCollisionShape(SgNode* shape);
@@ -334,6 +342,7 @@ private:
     double q_lower_;
     double dq_upper_;
     double dq_lower_;
+    int materialId_;
     std::string name_;
     SgNodePtr visualShape_;
     SgNodePtr collisionShape_;

@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <cerrno>
 #include <cstring>
+#include <cmath>
 #include <string>
 #include <vector>
 #include <map>
@@ -228,7 +229,7 @@ int Joystick::numAxes() const
 void Joystick::setAxisEnabled(int axis, bool on)
 {
     if(!impl->extJoystick){
-        if(axis < impl->axes.size()){
+        if(axis < static_cast<int>(impl->axes.size())){
             impl->axes[axis] = 0.0;
             impl->axisEnabled[axis] = on;
         }
@@ -409,7 +410,7 @@ double Joystick::getNativePosition(int axis) const
         return impl->extJoystick->getPosition(axis);
     }
 
-    if(axis < impl->axes.size()){
+    if(axis < static_cast<int>(impl->axes.size())){
         return impl->axes[axis];
     }
     return 0.0;
@@ -422,7 +423,7 @@ bool Joystick::getNativeButtonState(int button) const
         return impl->extJoystick->getButtonState(button);
     }
     
-    if(button < impl->buttons.size()){
+    if(button < static_cast<int>(impl->buttons.size())){
         return impl->buttons[button];
     }
     return false;

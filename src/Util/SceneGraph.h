@@ -110,7 +110,7 @@ public:
 
     void addParent(SgObject* parent, bool doNotify = false);
     void removeParent(SgObject* parent);
-    int numParents() const { return (int)parents.size(); }
+    int numParents() const { return static_cast<int>(parents.size()); }
     bool hasParents() const { return !parents.empty(); }
 
 public:
@@ -160,7 +160,7 @@ public:
 
     template <class NodeType, class SuperType> int registerType_() {
         return SgNode::registerNodeType(typeid(NodeType), typeid(SuperType));
-    };
+    }
     
     static int findPolymorphicId(const std::type_info& nodeType);
     
@@ -233,7 +233,7 @@ public:
     bool contains(SgNode* node) const;
 
     bool empty() const { return children.empty(); }
-    int numChildren() const { return (int)children.size(); }
+    int numChildren() const { return static_cast<int>(children.size()); }
     SgNode* child(int index) { return children[index]; }
     const SgNode* child(int index) const { return children[index]; }
 
@@ -254,10 +254,10 @@ public:
     void moveChildrenTo(SgGroup* group, bool doNotify = false);
 
     template<class NodeType> NodeType* findNodeOfType() {
-        for(size_t i=0; i < numChildren(); ++i){
+        for(int i=0; i < numChildren(); ++i){
             if(NodeType* node = dynamic_cast<NodeType*>(child(i))) return node;
         }
-        for(size_t i=0; i < numChildren(); ++i){
+        for(int i=0; i < numChildren(); ++i){
             if(child(i)->isGroup()){
                 if(NodeType* node = static_cast<SgGroup*>(child(i))->findNodeOfType<NodeType>()) return node;
             }
@@ -310,7 +310,7 @@ typedef ref_ptr<SgTransform> SgTransformPtr;
 class CNOID_EXPORT SgPosTransform : public SgTransform
 {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     SgPosTransform();
     SgPosTransform(const Affine3& T);
@@ -401,7 +401,7 @@ typedef ref_ptr<SgScaleTransform> SgScaleTransformPtr;
 class CNOID_EXPORT SgAffineTransform : public SgTransform
 {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     SgAffineTransform();
     SgAffineTransform(const Affine3& T);
