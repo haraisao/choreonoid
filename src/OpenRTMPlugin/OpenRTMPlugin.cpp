@@ -363,7 +363,8 @@ CNOID_EXPORT int cnoid::deleteUnmanagedRTCs()
             	OpenRTM::ExtTrigExecutionContextService_var myEC = OpenRTM::ExtTrigExecutionContextService::_narrow(myEClist[0]);
                 RTC::RTCList rtcs = myEC->get_profile()->participants;
             	for(size_t i=0; i < rtcs.length(); ++i){
-            		myEC->remove_component(rtcs[i]);
+			_CORBA_ULong n = (_CORBA_ULong)i;
+            		myEC->remove_component(rtcs[n]);
             	}
             }
         }
@@ -433,7 +434,8 @@ CNOID_EXPORT int cnoid::deleteUnmanagedRTCs()
     		OpenRTM::ExtTrigExecutionContextService_var myEC = OpenRTM::ExtTrigExecutionContextService::_narrow(myEClist[0]);
                 RTC::RTCList rtcs = myEC->get_profile()->participants;
     		for(size_t i=0; i < rtcs.length(); ++i){
-    			myEC->remove_component(rtcs[i]);
+			_CORBA_ULong n = (_CORBA_ULong)i;
+    			myEC->remove_component(rtcs[n]);
     		}
 #else
     		RTC::ExecutionContextService_var myEC = RTC::ExecutionContextService::_narrow(myEClist[0]);
