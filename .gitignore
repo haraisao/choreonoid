@@ -36,3 +36,9 @@ messages.pot
 share/project/FourWheelCarJoystick.cnoid
 share/project/SampleCrawlerSlope.cnoid
 share/project/ThreeWheeler.cnoid
+share/project/DoubleArmV7SJoystick.cnoid
+share/project/LinkPositionControl.cnoid
+share/project/TankJoystickAGX.cnoid
+share/project/TankJoystickAGX_Floor.cnoid
+share/project/TankJoystickLightBlink.cnoid
+misc/script/install_win32_deps.rb
