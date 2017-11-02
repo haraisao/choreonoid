@@ -32,8 +32,8 @@ protected:
     RTC::TimedDoubleSeq m_target_angle;
     RTC::InPort<RTC::TimedDoubleSeq> m_target_angleIn;
 
-	RTC::TimedDoubleSeq m_d_angle;
-    RTC::InPort<RTC::TimedDoubleSeq> m_d_angleIn;
+	RTC::TimedString m_command;
+    RTC::InPort<RTC::TimedString> m_commandIn;
 
     RTC::TimedDoubleSeq m_angle;
     RTC::InPort<RTC::TimedDoubleSeq> m_angleIn;
@@ -53,13 +53,17 @@ protected:
 	unsigned int rightHand_id;
 	unsigned int leftHand_id;
     int close_hand;
+
     cnoid::Interpolator<cnoid::VectorXd> wristInterpolator;
     cnoid::Interpolator<cnoid::VectorXd> jointInterpolator;
     cnoid::Link* wrist;
     cnoid::JointPathPtr baseToWrist;
     double dq_hand;
     cnoid::VectorXd qref, qold, qref_old;
-    double time;
+
+	double time;
+
+	int m_mode, m_mode_prev;
 };
 
 extern "C"

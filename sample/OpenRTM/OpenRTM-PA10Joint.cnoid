@@ -230,32 +230,32 @@ items:
                     name: PA10-RobotIoRTC.q
                     isServicePort: false
               - 
-                name: PA10PickupControllerRTC
+                name: PA10JointControllerRTC
                 pos: [ -120, 78 ]
                 InPorts: 
                   - 
-                    name: PA10PickupControllerRTC.q
+                    name: PA10JointControllerRTC.q
                     isServicePort: false
                 OutPorts: 
                   - 
-                    name: PA10PickupControllerRTC.u_out
+                    name: PA10JointControllerRTC.u_out
                     isServicePort: false
             RTSConnections: 
               - 
-                name: PA10-RobotIoRTC.q_PA10PickupControllerRTC.q
+                name: PA10-RobotIoRTC.q_PA10JointControllerRTC.q
                 sourceRtcName: PA10-RobotIoRTC
                 sourcePortName: PA10-RobotIoRTC.q
-                targetRtcName: PA10PickupControllerRTC
-                targetPortName: PA10PickupControllerRTC.q
+                targetRtcName: PA10JointControllerRTC
+                targetPortName: PA10JointControllerRTC.q
                 dataflow: push
                 subscription: flush
                 position: [ 12, -18, 74, -18, 74, 49, -99, 49, -99, 97, -39, 97 ]
               - 
-                name: PA10-RobotIoRTC.u_PA10PickupControllerRTC.u_out
+                name: PA10-RobotIoRTC.u_PA10JointControllerRTC.u_out
                 sourceRtcName: PA10-RobotIoRTC
                 sourcePortName: PA10-RobotIoRTC.u
-                targetRtcName: PA10PickupControllerRTC
-                targetPortName: PA10PickupControllerRTC.u_out
+                targetRtcName: PA10JointControllerRTC
+                targetPortName: PA10JointControllerRTC.u_out
                 dataflow: push
                 subscription: flush
                 position: [ -48, -18, -126, -18, -126, 27, 106, 27, 106, 97, 21, 97 ]

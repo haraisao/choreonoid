@@ -34,6 +34,7 @@ endfunction()
 
 # Robot IO
 add_cnoid_body_io_rtc(RobotIoRTC RobotIoRTC.cpp)
+add_cnoid_body_io_rtc(RobotIoRTC2 RobotIoRTC2.cpp)
 
 # SR1 walk
 add_cnoid_sample_rtc(SR1WalkControllerRTC SR1WalkControllerRTC.cpp)

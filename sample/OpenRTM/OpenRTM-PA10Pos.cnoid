@@ -1,5 +1,3 @@
-optionalPlugins: [ ODE, Bullet, PhysX, AgX ]
-
 items: 
   id: 0
   name: "Root"
@@ -29,7 +27,7 @@ items:
               1, 0, 0, 
               0, 1, 0, 
               0, 0, 1 ]
-            jointPositions: [  0.000000, -0.523599,  0.000000,  1.047198,  0.000000, -0.523599,  0.000000, -0.025000,  0.025000 ]
+            jointPositions: [  0.091755, -0.624460,  0.010676,  1.120979,  0.013342, -0.494824, -0.111610, -0.028034,  0.028033 ]
             initialRootPosition: [ 0, 0, 0 ]
             initialRootAttitude: [ 
               1, 0, 0, 
@@ -49,9 +47,9 @@ items:
               data: 
                 isNoDelayMode: true
                 controllerOptions: ""
-                module: "RobotIoRTC"
+                module: "RobotIoRTC2"
                 baseDirectory: "RTC directory"
-                instanceName: ""
+                instanceName: "PA10-RobotIoRTC"
                 periodicRate: 0
             - 
               id: 4
@@ -74,11 +72,11 @@ items:
           data: 
             modelFile: "${SHARE}/model/misc/box3.body"
             currentBaseLink: "WAIST"
-            rootPosition: [ 0.9, 0, 0.035 ]
+            rootPosition: [ 3.04426046e-05, 0.652479684, 0.334816562 ]
             rootAttitude: [ 
-              0, -1, 0, 
-              1, 0, 0, 
-              0, 0, 1 ]
+              -0.999999584, -0.00034911122, -0.000843101113, 
+              0.000349028354, -0.999999934, 9.84323037e-05, 
+              -0.000843135422, 9.81379966e-05, 0.99999964 ]
             jointPositions: [  ]
             initialRootPosition: [ 0.9, 0, 0.035 ]
             initialRootAttitude: [ 
@@ -146,10 +144,9 @@ items:
             realtimeSync: true
             recording: "full"
             timeRangeMode: "Specified time"
-            timeLength: 8
+            timeLength: 300
             allLinkPositionOutputMode: false
             deviceStateOutput: true
-            selfCollision: false
             controllerThreads: true
             recordCollisionData: false
             controllerOptions: ""
@@ -169,49 +166,6 @@ items:
             oldAccelSensorMode: false
         - 
           id: 9
-          name: "ODESimulator"
-          plugin: ODE
-          class: ODESimulatorItem
-          data: 
-            timestep: 0.001
-            realtimeSync: true
-            recording: "full"
-            timeRangeMode: "Specified time"
-            timeLength: 13.4
-            allLinkPositionOutputMode: true
-            deviceStateRecording: true
-            stepMode: Iterative (quick step)
-            gravity: [ 0, 0, -9.8 ]
-            friction: 0.5
-            jointLimitMode: false
-            globalERP: 0.4
-            globalCFM: 1e-10
-            numIterations: 50
-            overRelaxation: 1.3
-            limitCorrectingVel: true
-            maxCorrectingVel: 1.0e-3
-            2Dmode: false
-        - 
-          id: 10
-          name: "BulletSimulator"
-          plugin: Bullet
-          class: BulletSimulatorItem
-          data:
-            timestep: 0.001
-            realtimeSync: true
-            recording: "full"
-            timeRangeMode: "Specified time"
-            timeLength: 13.4
-            allLinkPositionOutputMode: true
-            deviceStateRecording: true
-            ErrorReductionParameter: 0.5
-            NumIterations: 10
-            Restitution: 0
-            Friction: 0.7
-            ERP2: 0
-            SplitImpulsePenetrationThreshold: -0.0001
-        - 
-          id: 11
           name: "RTSystem"
           plugin: OpenRTM
           class: RTSystemItem
@@ -220,45 +174,69 @@ items:
             RTSComps: 
               - 
                 name: PA10-RobotIoRTC
-                pos: [ -97, -37 ]
+                pos: [ -103, 93 ]
                 InPorts: 
                   - 
-                    name: PA10-RobotIoRTC.u
+                    name: PA10-RobotIoRTC.u_in
                     isServicePort: false
                 OutPorts: 
                   - 
                     name: PA10-RobotIoRTC.q
                     isServicePort: false
+                  - 
+                    name: PA10-RobotIoRTC.u_out
+                    isServicePort: false
               - 
-                name: PA10PickupControllerRTC
-                pos: [ -120, 78 ]
+                name: PA10PosControllerRTC
+                pos: [ 103, 68 ]
                 InPorts: 
                   - 
-                    name: PA10PickupControllerRTC.q
+                    name: PA10PosControllerRTC.command
+                    isServicePort: false
+                  - 
+                    name: PA10PosControllerRTC.q
+                    isServicePort: false
+                  - 
+                    name: PA10PosControllerRTC.target_q
+                    isServicePort: false
+                  - 
+                    name: PA10PosControllerRTC.u_in
                     isServicePort: false
                 OutPorts: 
                   - 
-                    name: PA10PickupControllerRTC.u_out
+                    name: PA10PosControllerRTC.q_out
+                    isServicePort: false
+                  - 
+                    name: PA10PosControllerRTC.u_out
                     isServicePort: false
             RTSConnections: 
               - 
-                name: PA10-RobotIoRTC.q_PA10PickupControllerRTC.q
+                name: PA10-RobotIoRTC.u_PA10PosControllerRTC.u_out
+                sourceRtcName: PA10-RobotIoRTC
+                sourcePortName: PA10-RobotIoRTC.u_in
+                targetRtcName: PA10PosControllerRTC
+                targetPortName: PA10PosControllerRTC.u_out
+                dataflow: push
+                subscription: flush
+                position: [ -77, 112, -126, 112, -126, 27, 106, 27, 106, 105, 201, 105 ]
+              - 
+                name: PA10-RobotIoRTC.q_PA10PosControllerRTC.q
                 sourceRtcName: PA10-RobotIoRTC
                 sourcePortName: PA10-RobotIoRTC.q
-                targetRtcName: PA10PickupControllerRTC
-                targetPortName: PA10PickupControllerRTC.q
+                targetRtcName: PA10PosControllerRTC
+                targetPortName: PA10PosControllerRTC.q
                 dataflow: push
                 subscription: flush
-                position: [ 12, -18, 74, -18, 74, 49, -99, 49, -99, 97, -39, 97 ]
+                position: [ -17, 112, -12, 112, 46.5, 112, 46.5, 105, 136, 105, 141, 105 ]
               - 
-                name: PA10-RobotIoRTC.u_PA10PickupControllerRTC.u_out
+                name: PA10-RobotIoRTC.u_out_PA10PosControllerRTC.u_in
                 sourceRtcName: PA10-RobotIoRTC
-                sourcePortName: PA10-RobotIoRTC.u
-                targetRtcName: PA10PickupControllerRTC
-                targetPortName: PA10PickupControllerRTC.u_out
+                sourcePortName: PA10-RobotIoRTC.u_out
+                targetRtcName: PA10PosControllerRTC
+                targetPortName: PA10PosControllerRTC.u_in
                 dataflow: push
                 subscription: flush
-                position: [ -48, -18, -126, -18, -126, 27, 106, 27, 106, 97, 21, 97 ]
+                position: [ -17, 130, -12, 130, 18, 130, 18, 141, 136, 141, 141, 141 ]
 views: 
   - 
     id: 0
@@ -271,7 +249,6 @@ views:
     class: ItemTreeView
     mounted: true
     state: 
-      selected: [ 8 ]
       checked: [ 2, 5, 6, 7 ]
       expanded: [ 1, 2, 5, 6 ]
   - 
@@ -325,7 +302,7 @@ views:
           far: 10000
           eye: [ 2.98726, 1.61043, 1.04286 ]
           direction: [ -0.888889099, -0.444444049, -0.111111012 ]
-          up: [ -0.0993806907, -0.0496903953, 0.993808001 ]
+          up: [ -0.0993806904, -0.0496903951, 0.993808001 ]
         - 
           camera: [ System, Orthographic ]
           orthoHeight: 20
@@ -394,11 +371,97 @@ views:
     plugin: OpenRTM
     class: RTSPropertiesView
     mounted: true
-  - 
-    id: 10
-    plugin: Python
-    class: PythonConsoleView
-    mounted: true
+toolbars: 
+  "TimeBar": 
+    minTime: 0
+    maxTime: 64.58
+    frameRate: 100
+    playbackFrameRate: 50
+    idleLoopDrivenMode: false
+    currentTime: 64.58
+    speedScale: 1
+    syncToOngoingUpdates: true
+    autoExpansion: true
+  "BodyMotionGenerationBar": 
+    autoGenerationForNewBody: true
+    balancer: false
+    autoGeneration: false
+    timeScaleRatio: 1
+    preInitialDuration: 1
+    postFinalDuration: 1
+    onlyTimeBarRange: false
+    makeNewBodyItem: true
+    stealthyStepMode: true
+    stealthyHeightRatioThresh: 2
+    flatLiftingHeight: 0.005
+    flatLandingHeight: 0.005
+    impactReductionHeight: 0.005
+    impactReductionTime: 0.04
+    autoZmp: true
+    minZmpTransitionTime: 0.1
+    zmpCenteringTimeThresh: 0.03
+    zmpTimeMarginBeforeLiftingSpin: 0
+    zmpMaxDistanceFromCenter: 0.02
+    allLinkPositions: false
+    lipSyncMix: false
+    timeToStartBalancer: 0
+    balancerIterations: 2
+    plainBalancerMode: false
+    boundaryConditionType: position
+    boundarySmootherType: quintic
+    boundarySmootherTime: 0.5
+    boundaryCmAdjustment: false
+    boundaryCmAdjustmentTime: 1
+    waistHeightRelaxation: false
+    gravity: 9.8
+    dynamicsTimeRatio: 1
+  "KinematicsBar": 
+    mode: AUTO
+    enablePositionDragger: true
+    penetrationBlock: false
+    collisionLinkHighlight: false
+    snapDistance: 0.025
+    penetrationBlockDepth: 0.0005
+    lazyCollisionDetectionMode: true
+  "LeggedBodyBar": 
+    stanceWidth: 0.15
+Body: 
+  "BodyMotionEngine": 
+    updateJointVelocities: false
+  "EditableSceneBody": 
+    editableSceneBodies: 
+      - 
+        bodyItem: 2
+        showCenterOfMass: false
+        showPpcom: false
+        showZmp: false
+      - 
+        bodyItem: 5
+        showCenterOfMass: false
+        showPpcom: false
+        showZmp: false
+      - 
+        bodyItem: 6
+        showCenterOfMass: false
+        showPpcom: false
+        showZmp: false
+      - 
+        bodyItem: 7
+        showCenterOfMass: false
+        showPpcom: false
+        showZmp: false
+    staticModelEditing: true
+  "KinematicFaultChecker": 
+    checkJointPositions: true
+    angleMargin: 0
+    translationMargin: 0
+    checkJointVelocities: true
+    velocityLimitRatio: 100
+    targetJoints: all
+    checkSelfCollisions: true
+    onlyTimeBarRange: false
+OpenRTM: 
+  "deleteUnmanagedRTCsOnStartingSimulation": false
 viewAreas: 
   - 
     type: embedded
@@ -406,12 +469,12 @@ viewAreas:
     contents: 
       type: splitter
       orientation: horizontal
-      sizes: [ 380, 1618 ]
+      sizes: [ 262, 1113 ]
       children: 
         - 
           type: splitter
           orientation: vertical
-          sizes: [ 566, 565 ]
+          sizes: [ 485, 485 ]
           children: 
             - 
               type: pane
@@ -424,17 +487,17 @@ viewAreas:
         - 
           type: splitter
           orientation: vertical
-          sizes: [ 808, 323 ]
+          sizes: [ 693, 277 ]
           children: 
             - 
               type: splitter
               orientation: horizontal
-              sizes: [ 755, 857 ]
+              sizes: [ 519, 589 ]
               children: 
                 - 
                   type: splitter
                   orientation: vertical
-                  sizes: [ 401, 401 ]
+                  sizes: [ 344, 344 ]
                   children: 
                     - 
                       type: pane
@@ -450,5 +513,18 @@ viewAreas:
                   current: 3
             - 
               type: pane
-              views: [ 2, 10 ]
+              views: [ 2 ]
               current: 2
+layoutOfToolBars: 
+  rows: 
+    - 
+      - { name: "FileBar", x: 0, priority: 0 }
+      - { name: "ScriptBar", x: 48, priority: 0 }
+      - { name: "TimeBar", x: 96, priority: 0 }
+      - { name: "SceneBar", x: 1010, priority: 0 }
+      - { name: "GraphBar", x: 1271, priority: 0 }
+    - 
+      - { name: "SimulationBar", x: 0, priority: 0 }
+      - { name: "BodyBar", x: 203, priority: 0 }
+      - { name: "KinematicsBar", x: 471, priority: 0 }
+      - { name: "BodyMotionGenerationBar", x: 712, priority: 0 }
