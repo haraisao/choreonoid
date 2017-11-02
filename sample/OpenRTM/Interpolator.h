@@ -71,8 +71,8 @@ public:
             }
         }
 
-        int index = samples.size();
-        int size = y.size();
+        int index = (int)samples.size();
+        int size = (int)y.size();
         samples.push_back(Sample(size));
 
         Sample& s = samples.back();
@@ -94,7 +94,7 @@ public:
     }
 
     bool update() {
-        int n = samples.size();
+        int n = (int)samples.size();
         int s = 0;
         while(true){
             const int m = n - s;
@@ -114,7 +114,7 @@ public:
         int lower;
         int upper;
     
-        const int n = samples.size();
+        const int n = (int)samples.size();
         int k;
         if(prevReferredSegments >= 0 && prevReferredSegments < (n - 1)){
             k = prevReferredSegments;

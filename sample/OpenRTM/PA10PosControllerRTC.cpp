@@ -117,7 +117,7 @@ RTC::ReturnCode_t PA10PosControllerRTC::onActivated(RTC::UniqueId ec_id)
 	if(m_angleIn.isNew()){
 		m_angleIn.read();
 	}
-    for(int i=0; i < n; ++i){
+    for(unsigned int i=0; i < n; ++i){
         double q = m_angle.data[i];
         qold[i] = q;
         body->joint(i)->q() = q;
@@ -222,7 +222,7 @@ RTC::ReturnCode_t PA10PosControllerRTC::onExecute(RTC::UniqueId ec_id)
 	}
 
 
-    for(int i=0; i < n; ++i){
+    for(unsigned int i=0; i < n; ++i){
         double q = m_angle.data[i];
         double dq = (q - qold[i]) / TIMESTEP;
         double dq_ref = (qref[i] - qref_old[i]) / TIMESTEP;
