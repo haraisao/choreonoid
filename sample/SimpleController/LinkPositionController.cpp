@@ -2,6 +2,7 @@
    \file
    \author Ikumi Susa
 */
+
 #include <cnoid/SimpleController>
 #include <cnoid/JoystickGamepad>
 

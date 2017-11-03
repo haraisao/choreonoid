@@ -33,16 +33,6 @@ public:
     bool isFullpathDisplayMode() const { return isFullpathDisplayMode_; }
 };
 
-/*
-<<<<<<< HEAD
-#ifndef _WIN32
-#define DLLSFX string("(*.so)")
-#else
-#define DLLSFX string("(*.dll)")
-#endif
-=======
->>>>>>> master
-*/
 
 class PutPropertyFunction
 {

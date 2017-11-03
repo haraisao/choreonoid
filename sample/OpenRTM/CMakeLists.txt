@@ -52,10 +52,6 @@ configure_file(OpenRTM-PA10Pickup.cnoid ${CNOID_SOURCE_SHARE_DIR}/project COPYON
 add_cnoid_sample_rtc(PA10PosControllerRTC PA10PosControllerRTC.cpp)
 configure_file(OpenRTM-PA10Pos.cnoid ${CNOID_SOURCE_SHARE_DIR}/project COPYONLY)
 
-# PA10 JointControl
-add_cnoid_sample_rtc(PA10JointControllerRTC PA10JointControllerRTC.cpp)
-configure_file(OpenRTM-PA10Joint.cnoid ${CNOID_SOURCE_SHARE_DIR}/project COPYONLY)
-
 # Tank IO
 add_cnoid_body_io_rtc(TankIoRTC TankIoRTC.cpp)
 
