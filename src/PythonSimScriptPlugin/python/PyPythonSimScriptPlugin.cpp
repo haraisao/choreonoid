@@ -7,9 +7,6 @@
 
 using namespace cnoid;
 
-//<<<<<<< HEAD
-CNOID_PYTHON_DEFINE_GET_POINTER(PythonSimScriptItem)
-//=======
 #ifdef CNOID_USE_PYBIND11
 
 PYBIND11_MODULE(PythonSimScriptPlugin, m)
@@ -24,7 +21,7 @@ PYBIND11_MODULE(PythonSimScriptPlugin, m)
 };
 
 #else
-//>>>>>>> master
+CNOID_PYTHON_DEFINE_GET_POINTER(PythonSimScriptItem)
 
 BOOST_PYTHON_MODULE(PythonSimScriptPlugin)
 {
