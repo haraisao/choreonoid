@@ -34,3 +34,47 @@ messages.pot
 
 
 
+build/
+include/cnoid/AudioItem
+include/cnoid/EigenYaml
+include/cnoid/MediaItem
+include/cnoid/MediaUtil
+include/cnoid/VRMLNodes
+include/cnoid/VrmlNodes
+include/cnoid/VrmlParser
+include/cnoid/VrmlWriter
+include/cnoid/YamlNodes
+include/cnoid/YamlReader
+include/cnoid/YamlWriter
+include/cnoid/corba/
+share/project/ConveyorSample.cnoid
+share/project/DoubleArmV7SJoystick.cnoid
+share/project/FourWheelCarJoystick.cnoid
+share/project/LinkPositionControl.cnoid
+share/project/OpenRTM-PA10Pickup.cnoid
+share/project/OpenRTM-PA10Pos.cnoid
+share/project/OpenRTM-SR1Liftup.cnoid
+share/project/OpenRTM-SR1Walk.cnoid
+share/project/OpenRTM-TankJoystick.cnoid
+share/project/OpenRTM-TankJoystickVisionSensors-RTSystem.cnoid
+share/project/OpenRTM-TankJoystickVisionSensors.cnoid
+share/project/PA10Pickup.cnoid
+share/project/SR1Liftup-ContactForceExtraction.cnoid
+share/project/SR1Liftup.cnoid
+share/project/SR1Minimum.cnoid
+share/project/SR1Walk.cnoid
+share/project/SR1Walk2D.cnoid
+share/project/SR1WalkPush.cnoid
+share/project/SR1WalkinHouse.cnoid
+share/project/SampleCrawler.cnoid
+share/project/SampleCrawlerJoystick.cnoid
+share/project/SampleCrawlerSlope.cnoid
+share/project/TankJoystick.cnoid
+share/project/TankJoystickAGX.cnoid
+share/project/TankJoystickAGX_Floor.cnoid
+share/project/TankJoystickLightBlink.cnoid
+share/project/TankJoystickPointCloudIO.cnoid
+share/project/TankJoystickVisionSensors.cnoid
+share/script/AgXsetContactMaterial.py
+share/script/SR1WalkPush.py
+
