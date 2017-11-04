@@ -31,7 +31,9 @@ messages.pot
 /share/project
 /share/model
 /share/script
-
+/build
+/build2
+/include/cnoid/corba
 
 share/project/FourWheelCarJoystick.cnoid
 share/project/SampleCrawlerSlope.cnoid
@@ -42,3 +44,15 @@ share/project/TankJoystickAGX.cnoid
 share/project/TankJoystickAGX_Floor.cnoid
 share/project/TankJoystickLightBlink.cnoid
 misc/script/install_win32_deps.rb
+include/cnoid/AudioItem
+
+include/cnoid/EigenYaml
+include/cnoid/MediaItem
+include/cnoid/MediaUtil
+include/cnoid/VRMLNodes
+include/cnoid/VrmlNodes
+include/cnoid/VrmlParser
+include/cnoid/VrmlWriter
+include/cnoid/YamlNodes
+include/cnoid/YamlReader
+include/cnoid/YamlWriter

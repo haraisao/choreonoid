@@ -336,7 +336,7 @@ bool PythonExecutorImpl::execMain(std::function<python::object()> execScript)
 #endif
         completed = true;
     }
-    catch(const python::error_already_set& ) {
+    catch(const python::error_already_set& ex) {
 
 #ifdef CNOID_USE_PYBIND11
         exceptionText = ex.what();
