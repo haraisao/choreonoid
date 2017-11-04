@@ -2,11 +2,14 @@
   @author Shin'ichiro Nakaoka
 */
 
+#include "../exportdecl.h"
 #include "../PoseSeqItem.h"
 #include <cnoid/PyUtil>
 
 using namespace cnoid;
 namespace py = boost::python;
+
+CNOID_PYTHON_DEFINE_GET_POINTER(PoseSeqItem)
 
 BOOST_PYTHON_MODULE(PoseSeqPlugin)
 {

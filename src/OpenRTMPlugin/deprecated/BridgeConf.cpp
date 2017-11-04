@@ -204,7 +204,7 @@ void BridgeConf::setPortInfos(const char* optionLabel, PortInfoMap& portInfos)
     for(size_t i=0; i < ports.size(); ++i){
         vector<string> parameters;
         extractParameters(ports[i], parameters);
-        int n = parameters.size();
+        size_t n = parameters.size();
         if(n < 2 || n > 4){
             throw invalid_argument(string("invalid in port setting"));
         }
@@ -265,7 +265,7 @@ void BridgeConf::addPortConnection(const std::string& value)
 {
     vector<string> parameters;
     extractParameters(value, parameters);
-    int n = parameters.size();
+    size_t n = parameters.size();
     if(n < 2 || n > 4){
         throw std::invalid_argument(string("Invalied port connection"));
     }

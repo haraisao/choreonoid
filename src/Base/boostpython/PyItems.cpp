@@ -24,6 +24,20 @@ using namespace cnoid;
 // for MSVC++2015 Update3
 CNOID_PYTHON_DEFINE_GET_POINTER(Item)
 CNOID_PYTHON_DEFINE_GET_POINTER(RootItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(MultiPointSetItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(PointSetItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(SceneItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(MultiSeqItem<class MultiSE3Seq>)
+CNOID_PYTHON_DEFINE_GET_POINTER(MultiSeqItem<class MultiAffine3Seq>)
+CNOID_PYTHON_DEFINE_GET_POINTER(MultiSeqItem<class MultiValueSeq>)
+CNOID_PYTHON_DEFINE_GET_POINTER(Vector3SeqItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(ExtCommandItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(FolderItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(AbstractMultiSeqItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(AbstractSeqItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(ScriptItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(AbstractTextItem)
+
 
 namespace {
 
@@ -317,10 +331,8 @@ void exportPyItems()
     py::implicitly_convertible<MultiPointSetItemPtr, SceneProvider*>();
     PyItemList<MultiPointSetItem>("MultiPointSetItemList");
 
-#ifdef _MSC_VER
-    py::register_ptr_to_python<ItemPtr>();
-    py::register_ptr_to_python<RootItemPtr>();
-#endif
+    REGISTER_PTR_TO_PYTHON(ItemPtr)
+    REGISTER_PTR_TO_PYTHON(RootItemPtr)
 
 }
 

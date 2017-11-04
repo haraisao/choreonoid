@@ -17,6 +17,9 @@
 using namespace cnoid;
 namespace py = boost::python;
 
+CNOID_PYTHON_DEFINE_GET_POINTER(BodyRTCItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(RTCItem)
+
 BOOST_PYTHON_MODULE(OpenRTMPlugin)
 {
     py::class_<RTCItem, RTCItemPtr, py::bases<Item>>("RTCItem")

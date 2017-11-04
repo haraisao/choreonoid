@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 2.8.10)
 cmake_policy(SET CMP0003 NEW)
+cmake_policy(SET CMP0020 NEW)
+cmake_policy(SET CMP0043 NEW)
+
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
 include(FindPkgConfig)
@@ -41,6 +44,7 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --no-gnu-unique")
   endif()
   
+
   add_definitions("-pthread")
 endif()
 
@@ -163,6 +167,8 @@ if(MSVC)
     set(ext_compiler_options "${ext_compiler_options} /arch:AVX2")
   endif()
   set(ext_linker_options "")
+
+  set(ext_compider_options "$(ext_compiler_options /EHsc")
 
   option(MSVC_ENABLE_GLOBAL_OPTIMIZATION "Global optimization with compiler option /GL and linker option /LTCG" ON)
   if(MSVC_ENABLE_GLOBAL_OPTIMIZATION)

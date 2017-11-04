@@ -9,6 +9,11 @@
 namespace python = boost::python;
 using namespace boost::python;
 
+#ifdef __PYTHON3__
+#define PyString_Check PyUnicode_Check
+#define PyString_AsString      PyUnicode_AsUTF8
+#endif
+
 // for MSVC++2015 Update3
 CNOID_PYTHON_DEFINE_GET_POINTER(QObject)
 

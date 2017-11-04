@@ -5,9 +5,18 @@
 #include "PyUtil.h"
 #include "../ValueTree.h"
 
+#ifdef __PYTHON3__
+#define PyInt_Check    PyLong_Check
+#define PyString_Check PyUnicode_Check
+#endif
+
 using namespace std;
 using namespace cnoid;
 namespace py = boost::python;
+
+CNOID_PYTHON_DEFINE_GET_POINTER(Listing)
+CNOID_PYTHON_DEFINE_GET_POINTER(Mapping)
+CNOID_PYTHON_DEFINE_GET_POINTER(ValueNode)
 
 namespace {
 

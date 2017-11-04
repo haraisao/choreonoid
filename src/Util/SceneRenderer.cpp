@@ -254,7 +254,7 @@ bool SceneRenderer::pick(int x, int y)
     impl->isRendering = true;
     bool result = doPick(x, y);
     impl->isRendering = false;
-    return result;
+    return true;
 }
 
 

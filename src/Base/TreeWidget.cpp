@@ -59,7 +59,11 @@ void TreeWidget::setHeaderSectionResizeMode(int column, QHeaderView::ResizeMode 
 void TreeWidget::setVerticalGridLineShown(bool on)
 {
     if(on){
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
         gridColorRGB = style()->styleHint(QStyle::SH_Table_GridLineColor, new QStyleOptionViewItemV4());
+#else
+        gridColorRGB = style()->styleHint(QStyle::SH_Table_GridLineColor, new QStyleOptionViewItem());
+#endif
     }
     isVerticalGridLineShown = on;
 }

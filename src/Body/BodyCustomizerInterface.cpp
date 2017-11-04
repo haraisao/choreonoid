@@ -74,6 +74,9 @@ static bool loadCustomizerDll(BodyInterface* bodyInterface, const std::string fi
     DllHandle dll = loadDll(filename.c_str());
 	
     if(dll){
+#ifdef _WIN32
+        bind_textdomain_codeset(CNOID_GETTEXT_DOMAIN_NAME, "utf-8");
+#endif
 		
         GetBodyCustomizerInterfaceFunc getCustomizerInterface =
             (GetBodyCustomizerInterfaceFunc)resolveDllSymbol(dll, "getHrpBodyCustomizerInterface");

@@ -11,7 +11,7 @@
 
 namespace cnoid {
 
-class InverseKinematics
+class CNOID_EXPORT InverseKinematics
 {
 public:
     enum AxisSet { NO_AXES = 0, TRANSLATION_3D = 0x1, ROTATION_3D = 0x2, TRANSFORM_6D = 0x3 };

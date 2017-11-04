@@ -9,6 +9,9 @@
 using namespace boost::python;
 using namespace cnoid;
 
+CNOID_PYTHON_DEFINE_GET_POINTER(BodyMotionItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(WorldItem)
+
 namespace {
 
 BodyMotionPtr BodyMotionItem_motion(BodyMotionItem& self) { return self.motion(); }
