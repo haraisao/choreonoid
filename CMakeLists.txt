@@ -168,7 +168,7 @@ if(MSVC)
   endif()
   set(ext_linker_options "")
 
-  set(ext_compider_options "$(ext_compiler_options /EHsc")
+  set(ext_compider_options "${ext_compiler_options} /EHsc")
 
   option(MSVC_ENABLE_GLOBAL_OPTIMIZATION "Global optimization with compiler option /GL and linker option /LTCG" ON)
   if(MSVC_ENABLE_GLOBAL_OPTIMIZATION)
