@@ -10,6 +10,9 @@ using namespace boost;
 using namespace boost::python;
 using namespace cnoid;
 
+CNOID_PYTHON_DEFINE_GET_POINTER(PositionDragger)
+CNOID_PYTHON_DEFINE_GET_POINTER(SceneDragger)
+
 namespace cnoid {
 
 void exportPySceneTypes()

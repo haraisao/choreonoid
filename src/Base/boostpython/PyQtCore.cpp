@@ -16,6 +16,7 @@ using namespace boost::python;
 
 // for MSVC++2015 Update3
 CNOID_PYTHON_DEFINE_GET_POINTER(QObject)
+CNOID_PYTHON_DEFINE_GET_POINTER(QTimer)
 
 namespace {
 
