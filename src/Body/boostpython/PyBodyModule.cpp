@@ -17,6 +17,9 @@ namespace py = boost::python;
 // for MSVC++2015 Update3
 CNOID_PYTHON_DEFINE_GET_POINTER(Link)
 CNOID_PYTHON_DEFINE_GET_POINTER(Body)
+CNOID_PYTHON_DEFINE_GET_POINTER(BodyMotion)
+CNOID_PYTHON_DEFINE_GET_POINTER(JointPath)
+CNOID_PYTHON_DEFINE_GET_POINTER(Device)
 
 namespace
 {
@@ -357,7 +360,7 @@ BOOST_PYTHON_MODULE(Body)
             ;
     }
 
-#if _MSC_VER == 1900
+#ifdef _MSC_VER
     py::register_ptr_to_python<BodyPtr>();
     py::register_ptr_to_python<LinkPtr>();
 #endif

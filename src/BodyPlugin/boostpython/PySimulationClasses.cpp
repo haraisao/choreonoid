@@ -18,6 +18,9 @@ using namespace cnoid;
 // for MSVC++2015 Update3
 //CNOID_PYTHON_DEFINE_GET_POINTER(SimulatorItem)
 CNOID_PYTHON_DEFINE_GET_POINTER(SimulationBar)
+CNOID_PYTHON_DEFINE_GET_POINTER(SimpleControllerItem)
+CNOID_PYTHON_DEFINE_GET_POINTER(SimulationBody)
+CNOID_PYTHON_DEFINE_GET_POINTER(SimulationScriptItem)
 
 namespace {
 

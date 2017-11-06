@@ -9,6 +9,8 @@
 using namespace boost::python;
 using namespace cnoid;
 
+CNOID_PYTHON_DEFINE_GET_POINTER(BodyItem)
+
 namespace {
 
 BodyItemPtr loadBodyItem(const std::string& filename) {
