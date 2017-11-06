@@ -20,7 +20,7 @@ public:
     virtual ~AbstractSeqItem();
 
 #if _MSC_VER == 1900
-    virtual AbstractSeqPtr abstractSeq() { return NULL; }
+    virtual AbstractSeqPtr abstractSeq() { return NULL; };
 #else
     virtual AbstractSeqPtr abstractSeq() = 0;
 #endif
@@ -43,7 +43,7 @@ public:
 
     virtual AbstractSeqPtr abstractSeq();
 #if _MSC_VER == 1900
-    virtual AbstractMultiSeqPtr abstractMultiSeq() { return NULL; }
+    virtual AbstractMultiSeqPtr abstractMultiSeq() { return NULL; };
 #else
     virtual AbstractMultiSeqPtr abstractMultiSeq() = 0;
 #endif
