@@ -794,7 +794,7 @@ void SceneGraphPropertyView::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Minus:
             impl->zoomFontSize(-1);
             return;
-        defaut:
+        default:
             break;
         }
     }

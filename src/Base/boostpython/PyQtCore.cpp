@@ -6,6 +6,11 @@
 #include <QObject>
 #include <QTimer>
 
+#ifdef __PYTHON3__
+#define PyString_Check PyUnicode_Check
+#define PyString_AsString      PyUnicode_AsUTF8
+#endif
+
 namespace python = boost::python;
 using namespace boost::python;
 

@@ -317,7 +317,7 @@ void exportPyItems()
     py::implicitly_convertible<MultiPointSetItemPtr, SceneProvider*>();
     PyItemList<MultiPointSetItem>("MultiPointSetItemList");
 
-#ifdef _MSC_VER
+#if _MSC_VER == 1900
     py::register_ptr_to_python<ItemPtr>();
     py::register_ptr_to_python<RootItemPtr>();
 #endif

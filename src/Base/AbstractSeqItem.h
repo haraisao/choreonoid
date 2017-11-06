@@ -19,7 +19,11 @@ public:
     AbstractSeqItem(const AbstractSeqItem& org);
     virtual ~AbstractSeqItem();
 
+#if _MSC_VER == 1900
+    virtual AbstractSeqPtr abstractSeq() { return NULL; };
+#else
     virtual AbstractSeqPtr abstractSeq() = 0;
+#endif
 
 protected:
     virtual void doPutProperties(PutPropertyFunction& putProperty);
@@ -38,7 +42,11 @@ public:
     virtual ~AbstractMultiSeqItem();
 
     virtual AbstractSeqPtr abstractSeq();
+#if _MSC_VER == 1900
+    virtual AbstractMultiSeqPtr abstractMultiSeq() { return NULL; };
+#else
     virtual AbstractMultiSeqPtr abstractMultiSeq() = 0;
+#endif
 
 protected:
     virtual void doPutProperties(PutPropertyFunction& putProperty);

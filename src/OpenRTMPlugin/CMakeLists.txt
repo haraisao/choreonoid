@@ -58,6 +58,19 @@ set(plugin_sources
   )
 
 set(plugin_headers
+  BodyIoRTCItem.h
+  RTCItem.h
+  ChoreonoidExecutionContext.h
+  ChoreonoidPeriodicExecutionContext.h
+  ControllerRTCItem.h
+  exportdecl.h
+  gettext.h
+  OpenRTMUtil.h
+  RTSNameServerView.h
+  RTSPropertiesView.h
+  RTSItem.h
+  RTSDiagramView.h
+  RTSCommonUtil.h
   )
 
 if(NOT QT5)

@@ -17,6 +17,7 @@ Action::Action(QObject* parent)
 Action::Action(const QString& text, QObject* parent)
     : QAction(text, parent)
 {
+    this->setObjectName(text);
     initialize();
 }
 
@@ -32,6 +33,7 @@ Action::Action(const QIcon& icon, QObject* parent)
 Action::Action(const QIcon& icon, const QString& text, QObject* parent)
     : QAction(icon, text, parent)
 {
+    this->setObjectName(text);
     initialize();
 }
 
