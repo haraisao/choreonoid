@@ -56,3 +56,5 @@ include/cnoid/VrmlWriter
 include/cnoid/YamlNodes
 include/cnoid/YamlReader
 include/cnoid/YamlWriter
+nclude/cnoid/omniORBpy.h
+
