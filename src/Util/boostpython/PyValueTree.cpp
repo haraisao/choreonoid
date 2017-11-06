@@ -14,6 +14,10 @@ using namespace std;
 using namespace cnoid;
 namespace py = boost::python;
 
+CNOID_PYTHON_DEFINE_GET_POINTER(Listing)
+CNOID_PYTHON_DEFINE_GET_POINTER(Mapping)
+CNOID_PYTHON_DEFINE_GET_POINTER(ValueNode)
+
 namespace {
 
 MappingPtr ValueNode_toMapping(ValueNode& self){

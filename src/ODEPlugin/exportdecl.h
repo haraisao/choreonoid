@@ -21,7 +21,7 @@
 #  define CNOID_ODEPLUGIN_DLLAPI
 #  define CNOID_ODEPLUGIN_LOCAL
 # else
-#  if  defined(CnoidODEPlugin_EXPORTS) || defined(CnoidGAZEBO_ODEPlugin_EXPORTS)
+#  if defined(CnoidODEPlugin_EXPORTS) || defined(CnoidGAZEBO_ODEPlugin_EXPORTS)
 #   define CNOID_ODEPLUGIN_DLLAPI CNOID_ODEPLUGIN_DLLEXPORT
 #  else
 #   define CNOID_ODEPLUGIN_DLLAPI CNOID_ODEPLUGIN_DLLIMPORT
