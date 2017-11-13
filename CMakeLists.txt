@@ -659,6 +659,7 @@ if(ENABLE_CORBA)
     set(corba_src_dir ${CMAKE_CURRENT_SOURCE_DIR}/${subdir})
     set(corba_dir ${PROJECT_SOURCE_DIR}/include/cnoid/${subdir})
 
+
     set(idl_names ${ARGV})
     list(REMOVE_AT idl_names 0 1 2)
     
@@ -706,8 +707,12 @@ if(ENABLE_CORBA)
       elseif(MSVC)
 	file(TO_NATIVE_PATH ${corba_src_dir}/${idl_name}.hh src)
 	file(TO_NATIVE_PATH ${corba_dir} dest)
+
+        get_filename_component(pythonhome ${PYTHON_EXECUTABLE} DIRECTORY)
+
 	add_custom_command(
 	  OUTPUT ${corba_src_dir}/${idl_name}.hh ${corba_dir}/${idl_name}.hh ${corba_src_dir}/${idl_name}Sk.cpp ${corba_src_dir}/${idl_name}DynSk.cpp
+	  COMMAND set "PYTHONHOME=${pythonhome}"
 	  COMMAND for %%A in \("${OMNIORB_DIR}/bin/x86_win32"\) do %%~sA\\omniidl ${idl_flags} ${corba_dir}/${idl_name}.idl
 	  COMMAND copy ${src} ${dest}
 	  DEPENDS ${idl_files}
