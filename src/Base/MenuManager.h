@@ -48,7 +48,7 @@ public:
 
     MenuManager& addSeparator();
 
-    QAction* getItem(int index);
+    QAction *getItem(int index);
     bool removeItem(const QString& text);
 
 private:

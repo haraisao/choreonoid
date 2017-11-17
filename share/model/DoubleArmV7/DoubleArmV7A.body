@@ -26,22 +26,25 @@ links:
         rollerNames: [ WHEEL_L1, WHEEL_L2 ]
         idlerNames: [ WHEEL_L3 ]
         upAxis: [ 0, 1, 0 ]
-        numberOfNodes: 42
-        nodeThickness: 0.01
+        numberOfNodes: 50
+        nodeThickness: 0.03
         nodeWidth:  0.25
-        nodeDistanceTension: 2.0E-4
-        nodeThickerThickness: 0.02
-        useThickerNodeEvery: 0
-        hingeCompliance: 9.0E-10
+        nodeThickerThickness: 0.04
+        useThickerNodeEvery: 2
+        nodeDistanceTension: 1.0E-4
+        hingeCompliance: 1.0E-8
         hingeDamping: 0.01
-        minStabilizingHingeNormalForce: 100
-        stabilizingHingeFrictionParameter: 1e-6
+        minStabilizingHingeNormalForce: 1000
+        stabilizingHingeFrictionParameter: 1e-2
+        #nodesToWheelsMergeThreshold: -0.01
+        #nodesToWheelsSplitThreshold: -0.009
         enableMerge: false
         numNodesPerMergeSegment: 3
         contactReduction: 3
-        enableLockToReachMergeCondition: true
+        enableLockToReachMergeCondition: false
         lockToReachMergeConditionCompliance: 0.1
         lockToReachMergeConditionDamping: 0.01
+        material: DoubleArmV7ATracks
       -
         type: AGXVehicleContinuousTrackDevice
         name: TRACK_R
@@ -49,28 +52,30 @@ links:
         rollerNames: [ WHEEL_R1, WHEEL_R2 ]
         idlerNames: [ WHEEL_R3 ]
         upAxis: [ 0, 1, 0 ]
-        numberOfNodes: 42
-        nodeThickness: 0.01
+        numberOfNodes: 50
+        nodeThickness: 0.03
         nodeWidth:  0.25
-        nodeDistanceTension: 2.0E-4
-        nodeThickerThickness: 0.02
-        useThickerNodeEvery: 0
-        hingeCompliance: 9.0E-10
+        nodeThickerThickness: 0.04
+        useThickerNodeEvery: 2
+        nodeDistanceTension: 1.0E-4
+        hingeCompliance: 1.0E-8
         hingeDamping: 0.01
-        minStabilizingHingeNormalForce: 100
-        stabilizingHingeFrictionParameter: 1e-6
+        minStabilizingHingeNormalForce: 1000
+        stabilizingHingeFrictionParameter: 1e-2
+        #nodesToWheelsMergeThreshold: -0.01
+        #nodesToWheelsSplitThreshold: -0.009
         enableMerge: false
         numNodesPerMergeSegment: 3
         contactReduction: 3
-        enableLockToReachMergeCondition: true
+        enableLockToReachMergeCondition: false
         lockToReachMergeConditionCompliance: 0.1
         lockToReachMergeConditionDamping: 0.01
+        material: DoubleArmV7ATracks
   -
     name: WHEEL_L0
     parent: TFRAME
     jointType: revolute
     jointAxis: [ 0, 0, 1 ]
-    jointId: 0
     translation: [ -0.74, -0.295, 0.600 ]
     centerOfMass: [ 0, 0, 0 ]
     maxJointVelocity: 573
@@ -79,6 +84,7 @@ links:
       0.2015, 0, 0,
       0, 0.2015, 0,
       0, 0, 0.265 ]
+    material: DoubleArmV7AWheel
     elements: &WeelShape
       Shape:
         rotation: [ 1, 0, 0, 90 ]
@@ -101,6 +107,7 @@ links:
       0.2015, 0, 0,
       0, 0.2015, 0,
       0, 0, 0.265 ]
+    material: DoubleArmV7AWheel
     elements: *WeelShape
   -
     name: WHEEL_L2
@@ -115,6 +122,7 @@ links:
       0.2015, 0, 0,
       0, 0.2015, 0,
       0, 0, 0.265 ]
+    material: DoubleArmV7AWheel
     elements: *WeelShape
   -
     name: WHEEL_L3
@@ -129,13 +137,13 @@ links:
       0.2015, 0, 0,
       0, 0.2015, 0,
       0, 0, 0.265 ]
+    material: DoubleArmV7AWheel
     elements: *WeelShape
   -
     name: WHEEL_R0
     parent: TFRAME
     jointType: revolute
     jointAxis: [ 0, 0, 1 ]
-    jointId: 1
     translation: [ -0.74, -0.295, -0.600 ]
     centerOfMass: [ 0, 0, 0 ]
     maxJointVelocity: 573
@@ -144,6 +152,7 @@ links:
       0.2015, 0, 0,
       0, 0.2015, 0,
       0, 0, 0.265 ]
+    material: DoubleArmV7AWheel
     elements: *WeelShape
   -
     name: WHEEL_R1
@@ -158,6 +167,7 @@ links:
       0.2015, 0, 0,
       0, 0.2015, 0,
       0, 0, 0.265 ]
+    material: DoubleArmV7AWheel
     elements: *WeelShape
   -
     name: WHEEL_R2
@@ -172,6 +182,7 @@ links:
       0.2015, 0, 0,
       0, 0.2015, 0,
       0, 0, 0.265 ]
+    material: DoubleArmV7AWheel
     elements: *WeelShape
   -
     name: WHEEL_R3
@@ -186,6 +197,7 @@ links:
       0.2015, 0, 0,
       0, 0.2015, 0,
       0, 0, 0.265 ]
+    material: DoubleArmV7AWheel
     elements: *WeelShape
   -
     type: SubBody

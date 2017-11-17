@@ -16,6 +16,7 @@ using namespace cnoid;
 namespace py =cnoid::python;
 
 #if _MSC_VER == 1900
+
 namespace cnoid{
 
 class TaskWrap : public Task, public py::wrapper<Task>
@@ -139,6 +140,7 @@ public :
         return this->Task::restoreState(sequencer, archive);
     }
 };
+
 };
 #endif
 
@@ -444,6 +446,10 @@ void TaskMenu_addMenuSeparator(TaskMenu& self){
 }
 
 #if _MSC_VER != 1900
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 class TaskWrap : public Task, public py::wrapper<Task>
 {
 public :

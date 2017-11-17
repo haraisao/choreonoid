@@ -360,11 +360,7 @@ BOOST_PYTHON_MODULE(Body)
             ;
     }
 
-#ifdef _MSC_VER
-    py::register_ptr_to_python<BodyPtr>();
-    py::register_ptr_to_python<LinkPtr>();
-#endif
-
-}
+    REGISTER_PTR_TO_PYTHON(BodyPtr)
+    REGISTER_PTR_TO_PYTHON(LinkPtr)
 
 }; // namespace cnoid

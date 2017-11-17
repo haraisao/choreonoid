@@ -62,8 +62,11 @@ yaml_strdup(const yaml_char_t *str)
 {
     if (!str)
         return NULL;
-
+#ifdef _WIN32
+    return (yaml_char_t *)_strdup((char *)str);
+#else
     return (yaml_char_t *)strdup((char *)str);
+#endif
 }
 
 /*

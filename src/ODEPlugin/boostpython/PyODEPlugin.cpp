@@ -4,6 +4,7 @@
 
 #include "../ODESimulatorItem.h"
 #include <cnoid/PyBase>
+#include <cnoid/PyUtil>
 
 using namespace cnoid;
 namespace py = boost::python;

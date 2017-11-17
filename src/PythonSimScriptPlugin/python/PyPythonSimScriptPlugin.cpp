@@ -23,6 +23,8 @@ PYBIND11_MODULE(PythonSimScriptPlugin, m)
 #else
 CNOID_PYTHON_DEFINE_GET_POINTER(PythonSimScriptItem)
 
+CNOID_PYTHON_DEFINE_GET_POINTER(PythonSimScriptItem)
+
 BOOST_PYTHON_MODULE(PythonSimScriptPlugin)
 {
     boost::python::class_<

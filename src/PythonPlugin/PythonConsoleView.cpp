@@ -648,10 +648,11 @@ void PythonConsoleViewImpl::keyPressEvent(QKeyEvent* event)
         }
     case Qt::Key_Up:
         if (event->modifiers() == Qt::ControlModifier) {
-          zoomIn();
+            zoomIn();
         }
         else {
-          setInputString(getPrevHistoryEntry());
+            setInputString(getPrevHistoryEntry());
+
         }
         done = true;
         break;
@@ -662,10 +663,11 @@ void PythonConsoleViewImpl::keyPressEvent(QKeyEvent* event)
         }
     case Qt::Key_Down:
         if (event->modifiers() == Qt::ControlModifier) {
-          zoomOut();
+            zoomOut();
         }
         else {
-          setInputString(getNextHistoryEntry());
+            setInputString(getNextHistoryEntry());
+
         }
         done = true;
         break;

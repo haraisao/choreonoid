@@ -35,7 +35,7 @@ public:
     virtual bool isRunning() const;
         
 #if _MSC_VER == 1900
-    virtual bool execute() { return true; };
+    virtual bool execute() {return true; };
 #else
     virtual bool execute() = 0;
 #endif
@@ -59,7 +59,7 @@ public:
 #if _MSC_VER == 1900
     virtual SignalProxy<void()> sigScriptFinished() { return __sigScriptFinished__; };
         
-    virtual bool terminate() { return true; };
+    virtual bool terminate() { return ture; }
 #else
     virtual SignalProxy<void()> sigScriptFinished() = 0;
         
@@ -69,8 +69,9 @@ public:
 protected:
     virtual ~ScriptItem();
 #if _MSC_VER == 1900
-    SignalProxy<void()> __sigScriptFinished__; 
+    SignalProxy<void()> __sigScriptFinished__;
 #endif
+
 };
 
 typedef ref_ptr<ScriptItem> ScriptItemPtr;

@@ -12,6 +12,7 @@
 #ifdef WIN32
 #include <memory>
 #endif
+#include "exportdecl.h"
 
 namespace cnoid {
 
@@ -58,7 +59,7 @@ private:
 /**
    \todo Make this thread safe
 */
-class Referenced
+class CNOID_EXPORT Referenced
 {
     friend class WeakCounter;
     template<class Y> friend class weak_ref_ptr;

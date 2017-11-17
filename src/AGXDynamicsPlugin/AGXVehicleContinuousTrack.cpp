@@ -97,6 +97,8 @@ AGXVehicleContinuousTrack::AGXVehicleContinuousTrack(AGXVehicleContinuousTrackDe
     trackDesc.hingeDamping= desc.hingeDamping;
     trackDesc.minStabilizingHingeNormalForce = desc.minStabilizingHingeNormalForce;
     trackDesc.stabilizingHingeFrictionParameter = desc.stabilizingHingeFrictionParameter;
+    trackDesc.nodesToWheelsMergeThreshold = desc.nodesToWheelsMergeThreshold;
+    trackDesc.nodesToWheelsSplitThreshold = desc.nodesToWheelsSplitThreshold;
     trackDesc.enableMerge = desc.enableMerge;
     trackDesc.numNodesPerMergeSegment = (agx::UInt)desc.numNodesPerMergeSegment;
     switch(desc.contactReduction)
@@ -134,14 +136,18 @@ AGXVehicleContinuousTrack::AGXVehicleContinuousTrack(AGXVehicleContinuousTrackDe
     /* Set collision Group*/
     // 1. All links(except tracks) are member of body's collision group
     // 2. Collision b/w tracks and links(except wheels) are not need -> create new group trackCollision
-    // 3. Collision b/w wheels and tracks needs collision -> remove wheels from trackCollision
+    // 3. Collision b/w wheels, guides andtracks needs collision -> remove wheels from trackCollision
     std::stringstream trackCollision;
     trackCollision << "trackCollision" << agx::UuidGenerator().generate().str() << std::endl;
     m_track->addGroup(trackCollision.str());
     getAGXBody()->addCollisionGroupNameToAllLink(trackCollision.str());
     getAGXBody()->addCollisionGroupNameToDisableCollision(trackCollision.str());
-    for(auto wheels : trackDesc.trackWheelRefs){
-        agxCollide::GeometryRef geometry = wheels->getRigidBody()->getGeometries().front();
+    for(auto wheel : trackDesc.trackWheelRefs){
+        agxCollide::GeometryRef geometry = wheel->getRigidBody()->getGeometries().front();
+        geometry->removeGroup(trackCollision.str());
+    }
+    for(auto guide : desc.guideNames){
+        agxCollide::GeometryRef geometry = getAGXBody()->getAGXRigidBody(guide)->getGeometries().front();
         geometry->removeGroup(trackCollision.str());
     }
 

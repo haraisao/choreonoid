@@ -49,10 +49,11 @@ public:
         MapType::operator=(rhs);
         return *this;
     }
-
+#if 0
     bool operator==(const DataMap<ElementType, Allocator>& rhs) const {
         return *this == rhs;
     }
+#endif
     
 #ifndef _MSC_VER
     using typename MapType::iterator;

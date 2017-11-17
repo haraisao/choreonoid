@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 2.8.12)
 cmake_policy(SET CMP0003 NEW)
+cmake_policy(SET CMP0020 NEW)
+cmake_policy(SET CMP0043 NEW)
+
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
 include(FindPkgConfig)
@@ -11,7 +14,7 @@ project(Choreonoid)
 
 set(CNOID_MAJOR_VERSION 1) 
 set(CNOID_MINOR_VERSION 6)
-set(CNOID_PATCH_VERSION 0)
+set(CNOID_PATCH_VERSION 1)
 set(CNOID_VERSION ${CNOID_MAJOR_VERSION}.${CNOID_MINOR_VERSION})
 set(CNOID_FULL_VERSION ${CNOID_MAJOR_VERSION}.${CNOID_MINOR_VERSION}.${CNOID_PATCH_VERSION})
 
@@ -41,6 +44,7 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --no-gnu-unique")
   endif()
   
+
   add_definitions("-pthread")
 endif()
 
@@ -78,7 +82,7 @@ if(MSVC AND CMAKE_CL_64)
 endif()
 
 if(MSVC)
-  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS_DEBUG _ITERATOR_DEBUG_LEVEL=1)
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:CNOID_DEBUG _ITERATOR_DEBUG_LEVEL=1>)
 endif()
 
 function(install_external_libraries dll_dir lib_dir)
@@ -164,9 +168,13 @@ if(MSVC)
   endif()
   set(ext_linker_options "")
 
+<<<<<<< HEAD
   #
   #  for MSVC2017 (Exception Handling Model)
   set(ext_compiler_options "${ext_compiler_options} /EHsc")
+=======
+  set(ext_compider_options "${ext_compiler_options} /EHsc")
+>>>>>>> master
 
   option(MSVC_ENABLE_GLOBAL_OPTIMIZATION "Global optimization with compiler option /GL and linker option /LTCG" ON)
   if(MSVC_ENABLE_GLOBAL_OPTIMIZATION)
@@ -511,6 +519,12 @@ macro(setup_qt5)
   find_package(Qt5Widgets)
   find_package(Qt5OpenGL)
   find_package(Qt5Network)
+  if(UNIX)
+    find_package(Qt5X11Extras)
+    set(QT_LIBRARIES Qt5::Core Qt5::Widgets Qt5::OpenGL Qt5::Network Qt5::X11Extras)
+  else()
+    set(QT_LIBRARIES Qt5::Core Qt5::Widgets Qt5::OpenGL Qt5::Network)
+  endif()
   set(QT5 TRUE)
 
   add_definitions(-DQT_NO_KEYWORDS -DQT_NO_OPENGL_ES_2)
@@ -549,6 +563,26 @@ macro(setup_qt5)
   endif()
 endmacro()
 
+function(QTX_ADD_RESOURCES out_files)
+  set(in_files ${ARGN})
+  if(NOT QT5)
+    QT4_ADD_RESOURCES(out ${in_files})
+  else()
+    QT5_ADD_RESOURCES(out ${in_files})
+  endif()
+  set(${out_files} ${out} PARENT_SCOPE)
+endfunction()
+
+function(QTX_WRAP_CPP out_files)
+  set(in_files ${ARGN})
+  if(NOT QT5)
+    QT4_WRAP_CPP(out ${in_files} OPTIONS "-DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED")
+  else()
+    QT5_WRAP_CPP(out ${in_files} OPTIONS "-DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED")
+  endif()
+  set(${out_files} ${out} PARENT_SCOPE)  
+endfunction()
+
 # qt
 if(ENABLE_GUI)
   set(DEFAULT_USE_QT5 TRUE)
@@ -556,6 +590,7 @@ if(ENABLE_GUI)
     if(MSVC_VERSION LESS 1700)
       set(DEFAULT_USE_QT5 FALSE)
     endif()
+    cmake_policy(SET CMP0020 OLD)
   else()
     find_package(Qt4 4.7.0 QUIET)
     if(Qt4_FOUND)
@@ -570,12 +605,10 @@ if(ENABLE_GUI)
 
   if(USE_QT5)
     setup_qt5()
-    if(POLICY CMP0043)
-      cmake_policy(SET CMP0043 OLD)
-    endif()
   else()
     setup_qt4()
   endif()
+
 endif()
 
 
@@ -811,7 +844,7 @@ endif(ENABLE_CORBA)
 # doxygen
 # find_package(Doxygen)
 
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS_DEBUG CNOID_DEBUG)
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:CNOID_DEBUG>)
 
 if(UNIX)
   

@@ -36,7 +36,7 @@ public:
     void restoreLayout(ArchivePtr archive);
     void storeLayout(ArchivePtr archive);
     void setInitialLayout(ArchivePtr archive);
-    ExtensionManager *getExtensionManager() { return extMgr; };
+    ExtensionManager *getExtensionManager() { return extMgr; }
 
 protected:
     virtual void changeEvent(QEvent* event);

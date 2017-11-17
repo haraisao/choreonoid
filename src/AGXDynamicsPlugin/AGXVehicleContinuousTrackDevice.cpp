@@ -75,6 +75,8 @@ bool readAGXVehicleContinuousTrackDevice(YAMLBodyLoader& loader, Mapping& node)
     NODE_READ(hingeDamping);
     NODE_READ(minStabilizingHingeNormalForce);
     NODE_READ(stabilizingHingeFrictionParameter);
+    NODE_READ(nodesToWheelsMergeThreshold);
+    NODE_READ(nodesToWheelsSplitThreshold);
     NODE_READ(enableMerge);
     NODE_READ(numNodesPerMergeSegment);
     NODE_READ(contactReduction);
@@ -98,6 +100,7 @@ bool readAGXVehicleContinuousTrackDevice(YAMLBodyLoader& loader, Mapping& node)
     toVectorString(info->extract("sprocketNames"), desc.sprocketNames);
     toVectorString(info->extract("idlerNames"), desc.idlerNames);
     toVectorString(info->extract("rollerNames"), desc.rollerNames);
+    toVectorString(info->extract("guideNames"), desc.guideNames);
     ValueNodePtr const upAxis = info->extract("upAxis");
     if(upAxis){
         Listing& u = *upAxis->toListing();
