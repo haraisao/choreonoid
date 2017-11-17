@@ -25,7 +25,7 @@ void exportPyMainWindow()
     class_<MainWindow, MainWindow*, bases<QMainWindow>, boost::noncopyable>("MainWindow", no_init)
         .def("instance", &MainWindow::instance, return_value_policy<reference_existing_object>()).staticmethod("instance")
         .def("setProjectTitle", &MainWindow::setProjectTitle)
-        .def("toolBarArea", &MainWindow::toolBarArea, return_value_policy<reference_exiting_object>())
+        .def("toolBarArea", &MainWindow::toolBarArea, return_value_policy<reference_existing_object>())
         .def("viewArea", &MainWindow::viewArea, return_value_policy<reference_existing_object>())
         .def("addToolBar", &MainWindow::addToolBar);
 

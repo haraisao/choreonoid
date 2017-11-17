@@ -12,8 +12,6 @@ using namespace cnoid;
  
 CNOID_PYTHON_DEFINE_GET_POINTER(Referenced)
 
-CNOID_PYTHON_DEFINE_GET_POINTER(Referenced)
-
 namespace
 {
 

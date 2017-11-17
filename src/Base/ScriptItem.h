@@ -59,7 +59,7 @@ public:
 #if _MSC_VER == 1900
     virtual SignalProxy<void()> sigScriptFinished() { return __sigScriptFinished__; };
         
-    virtual bool terminate() { return ture; }
+    virtual bool terminate() { return true; }
 #else
     virtual SignalProxy<void()> sigScriptFinished() = 0;
         

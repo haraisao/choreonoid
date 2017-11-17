@@ -1601,7 +1601,11 @@ bool SensorScreenRenderer::getRangeSensorData(vector<double>& rangeData)
     }
 
     if(wh > 1e6){
+#ifndef _WIN32
         free(depthBuf);
+#else
+        delete &depthBuf;
+#endif
     }
     return true;
 }

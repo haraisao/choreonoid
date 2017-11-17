@@ -72,7 +72,7 @@ struct pointee<cnoid::ref_ptr<T>>
 #define CNOID_PYTHON_DEFINE_GET_POINTER(classname)
 #endif
 
-+#ifdef _MSC_VER
+#ifdef _MSC_VER
 #define REGISTER_PTR_TO_PYTHON(CLASS)  do{ \
        const boost::python::type_info cinfo = boost::python::type_id<CLASS>(); \
        const boost::python::converter::registration* creg = boost::python::converter::registry::query(cinfo); \

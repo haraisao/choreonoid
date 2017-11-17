@@ -362,5 +362,6 @@ BOOST_PYTHON_MODULE(Body)
 
     REGISTER_PTR_TO_PYTHON(BodyPtr)
     REGISTER_PTR_TO_PYTHON(LinkPtr)
+};
 
 }; // namespace cnoid
