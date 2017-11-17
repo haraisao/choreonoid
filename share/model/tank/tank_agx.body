@@ -431,13 +431,18 @@ links:
                 frameRate: 30
                 rotation: [ [ 1, 0, 0, 90 ], [ 0, 1, 0, -90 ] ]
               -
-                type: RangeSensor
-                name: RangeSensor
-                scanAngle: 90
-                scanStep:  0.5
-                scanRate:  10
-                maxDistance: 10
-                rotation: [ [ 1, 0, 0, 90 ], [ 0, 1, 0, -90 ] ]
+                type: Transform
+                translation: [ 0, 0, 0.1 ]
+                elements:
+                  RangeSensor:
+                    name: VelodyneVLP-16
+                    scanYawAngle: 360
+                    scanYawStep:  0.4
+                    scanPitchAngle: 30
+                    scanPitchStep:  2
+                    scanRate:  10
+                    maxDistance: 10
+                    rotation: [ [ 1, 0, 0, 90 ], [ 0, 1, 0, -90 ] ]
               -
                 type: Transform
                 translation: [ -0.01, 0, 0.045 ]
@@ -490,6 +495,8 @@ links:
         hingeDamping: 0.01
         minStabilizingHingeNormalForce: 100
         stabilizingHingeFrictionParameter: 1e-6
+        nodesToWheelsMergeThreshold: -0.01
+        nodesToWheelsSplitThreshold: -0.009
         enableMerge: false
         numNodesPerMergeSegment: 3
         contactReduction: 3
@@ -497,6 +504,7 @@ links:
         lockToReachMergeConditionCompliance: 0.1
         lockToReachMergeConditionDamping: 0.01
         #maxAngleMergeCondition: 1.0E-5
+        material: TankTracks
       -
         type: Visual
         elements:
@@ -600,6 +608,7 @@ links:
       0.02, 0,    0,
       0,    0.02, 0,
       0,    0,    0.02 ]
+    material: TankWheel
     elements:
       -
         type: Visual
@@ -624,6 +633,7 @@ links:
       0.02, 0,    0,
       0,    0.02, 0,
       0,    0,    0.02 ]
+    material: TankWheel
     elements:
       -
         type: Visual
@@ -646,6 +656,7 @@ links:
       0.02, 0,    0,
       0,    0.02, 0,
       0,    0,    0.02 ]
+    material: TankWheel
     elements:
       -
         type: Visual
@@ -684,6 +695,8 @@ links:
         hingeDamping: 0.01
         minStabilizingHingeNormalForce: 100
         stabilizingHingeFrictionParameter: 1e-6
+        nodesToWheelsMergeThreshold: -0.01
+        nodesToWheelsSplitThreshold: -0.009
         enableMerge: false
         numNodesPerMergeSegment: 3
         contactReduction: 3
@@ -691,6 +704,7 @@ links:
         lockToReachMergeConditionCompliance: 1.0E-10
         lockToReachMergeConditionDamping: 0.01
         #maxAngleMergeCondition: 1.0E-5
+        material: TankTracks
       -
         type: Visual
         elements:
@@ -782,6 +796,7 @@ links:
       0.02, 0,    0,
       0,    0.02, 0,
       0,    0,    0.02 ]
+    material: TankWheel
     elements:
       -
         type: Visual
@@ -804,6 +819,7 @@ links:
       0.02, 0,    0,
       0,    0.02, 0,
       0,    0,    0.02 ]
+    material: TankWheel
     elements:
       -
         type: Visual
@@ -826,6 +842,7 @@ links:
       0.02, 0,    0,
       0,    0.02, 0,
       0,    0,    0.02 ]
+    material: TankWheel
     elements:
       -
         type: Visual

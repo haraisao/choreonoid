@@ -2,6 +2,7 @@
 #include "AGXScene.h"
 #include <cnoid/MeshExtractor>
 #include <cnoid/SceneDrawables>
+#include <mutex>
 #include "AGXVehicleContinuousTrack.h"
 #include "AGXConvexDecomposition.h"
 #include "AGXConvert.h"
@@ -104,7 +105,10 @@ bool AGXLink::setAGXMaterialFromName(const std::string& materialName)
     agxSDK::SimulationRef simulation = getAGXBody()->getAGXScene()->getSimulation();
     if(!simulation) return false;
     agx::MaterialRef mat = simulation->getMaterial(materialName);
-    if(!mat) return false;
+    if(!mat){
+        std::cout << "AGXDynamicsPlugin:Warning " << "Failed to set material " << materialName << std::endl;
+        return false;
+    }
     getAGXGeometry()->setMaterial(mat);
     getAGXRigidBody()->updateMassProperties(agx::MassProperties::AUTO_GENERATE_ALL);
     return true;
