@@ -1326,8 +1326,6 @@ bool YAMLBodyLoaderImpl::readContainerNode(Mapping& node, NodeFunction nodeFunct
 {
     bool isSceneNodeAdded = false;
 
-    currentSceneGroupSet().setName(nameStack.back());
-
     if(nodeFunction){
         if(nodeFunction(node)){
             isSceneNodeAdded = true;
@@ -1347,48 +1345,47 @@ bool YAMLBodyLoaderImpl::readContainerNode(Mapping& node, NodeFunction nodeFunct
 
 bool YAMLBodyLoaderImpl::readTransformContents(Mapping& node, NodeFunction nodeFunction, bool hasElements)
 {
-    bool isSceneNodeAdded = false;
-
     Affine3 T = Affine3::Identity();
-    bool isIdentity = true;
+    bool hasPosTransform = false;
+    bool hasScale = false;
+    bool isSceneNodeAdded = false;
     
     if(read(node, "translation", v)){
         T.translation() = v;
-        isIdentity = false;
+        hasPosTransform = true;
     }
-    Matrix3 R;
-    if(readRotation(node, R, false)){
-        T.linear() = R;
-        isIdentity = false;
+    if(readRotation(node, M, false)){
+        T.linear() = M;
+        hasPosTransform = true;
     }
-    Vector3 scale;
-    bool hasScale = read(node, "scale", scale);
+
     Affine3 Ts(T);
-    if(hasScale){
+    Vector3 scale;
+    if(read(node, "scale", scale)){
         Ts.linear() *= scale.asDiagonal();
+        hasScale = true;
     }
     
-    if(!isIdentity){
+    if(hasPosTransform || hasScale){
         transformStack.push_back(transformStack.back() * Ts);
     }
 
     sceneGroupSetStack.push_back(SceneGroupSet());
-    
-    if(isIdentity){
-        if(hasScale){
-            currentSceneGroupSet().newGroup<SgScaleTransform>(scale);
-        } else {
-            currentSceneGroupSet().newGroup<SgGroup>();
-        }
+    if(hasPosTransform){
+        currentSceneGroupSet().newGroup<SgPosTransform>(T);
+    } else if(hasScale){
+        currentSceneGroupSet().newGroup<SgScaleTransform>(scale);
     } else {
-        if(hasScale){
-            currentSceneGroupSet().newGroup<SgPosTransform>(T);
-            sceneGroupSetStack.push_back(SceneGroupSet());
-            currentSceneGroupSet().newGroup<SgScaleTransform>(scale);
-        } else {
-            currentSceneGroupSet().newGroup<SgPosTransform>(T);
-        }
+        currentSceneGroupSet().newGroup<SgGroup>();
     }
+    currentSceneGroupSet().setName(nameStack.back());
+    
+    if(hasPosTransform && hasScale){
+        sceneGroupSetStack.push_back(SceneGroupSet());
+        currentSceneGroupSet().newGroup<SgScaleTransform>(scale);
+        currentSceneGroupSet().setName(nameStack.back());
+    }
+    
     if(hasElements){
         isSceneNodeAdded = readContainerNode(node, nodeFunction);
     } else {
@@ -1399,7 +1396,7 @@ bool YAMLBodyLoaderImpl::readTransformContents(Mapping& node, NodeFunction nodeF
         addCurrentSceneGroupToParentSceneGroup();
     }
 
-    if(!isIdentity && hasScale){
+    if(hasPosTransform && hasScale){
         sceneGroupSetStack.pop_back();
         if(isSceneNodeAdded){
             addCurrentSceneGroupToParentSceneGroup();
@@ -1407,7 +1404,7 @@ bool YAMLBodyLoaderImpl::readTransformContents(Mapping& node, NodeFunction nodeF
     }
     sceneGroupSetStack.pop_back();
 
-    if(!isIdentity){
+    if(hasPosTransform || hasScale){
         transformStack.pop_back();
     }
 
@@ -1419,6 +1416,8 @@ bool YAMLBodyLoaderImpl::readGroup(Mapping& node)
 {
     sceneGroupSetStack.push_back(SceneGroupSet());
     currentSceneGroupSet().newGroup<SgGroup>();
+    currentSceneGroupSet().setName(nameStack.back());
+
     bool isSceneNodeAdded = readContainerNode(node, 0);
     if(isSceneNodeAdded){
         addCurrentSceneGroupToParentSceneGroup();
@@ -1613,22 +1612,23 @@ bool YAMLBodyLoaderImpl::readRangeSensor(Mapping& node)
     RangeSensorPtr rangeSensor = new RangeSensor;
     
     if(node.read("on", on)) rangeSensor->on(on);
-    if(readAngle(node, "scanAngle", value)) rangeSensor->setYawRange(value);
-    if(readAngle(node, "scanStep", value))
-        rangeSensor->setYawResolution((int)(rangeSensor->yawRange() / value + 1e-10) + 1);
-    if(readAngle(node, "scanYawAngle", value)) rangeSensor->setYawRange(value);
-    if(readAngle(node, "scanYawStep", value))
-        rangeSensor->setYawResolution((int)(rangeSensor->yawRange() / value + 1e-10) + 1);
-    if(readAngle(node, "scanPitchAngle", value))
-        rangeSensor->setPitchRange(value);
-    else
-        rangeSensor->setPitchRange(0.0);
-    if(readAngle(node, "scanPitchStep", value))
-        rangeSensor->setPitchResolution((int)(rangeSensor->pitchRange() / value + 1e-10) + 1);
 
+    if(readAngle(node, "yawRange", value)){
+        rangeSensor->setYawRange(value);
+    } else if(readAngle(node, "scanAngle", value)){ // backward compatibility
+        rangeSensor->setYawRange(value);
+    }
+    if(readAngle(node, "yawStep", value)){
+        rangeSensor->setYawStep(value);
+    } else if(readAngle(node, "scanStep", value)){ // backward compatibility
+        rangeSensor->setYawStep(value);
+    }
+
+    if(readAngle(node, "pitchRange", value)) rangeSensor->setPitchRange(value);
+    if(readAngle(node, "pitchStep", value)) rangeSensor->setPitchStep(value);
     if(node.read("minDistance", value)) rangeSensor->setMinDistance(value);
     if(node.read("maxDistance", value)) rangeSensor->setMaxDistance(value);
-    if(node.read("scanRate", value)) rangeSensor->setFrameRate(value);
+    if(node.read("scanRate", value)) rangeSensor->setScanRate(value);
     
     return readDevice(rangeSensor, node);
 }
