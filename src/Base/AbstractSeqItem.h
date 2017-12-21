@@ -42,11 +42,7 @@ public:
     virtual ~AbstractMultiSeqItem();
 
     virtual AbstractSeqPtr abstractSeq() override;
-#if _MSC_VER == 1900
-    virtual AbstractMultiSeqPtr abstractMultiSeq() { return NULL; };
-#else
     virtual AbstractMultiSeqPtr abstractMultiSeq() = 0;
-#endif
 
 protected:
     virtual void doPutProperties(PutPropertyFunction& putProperty) override;
